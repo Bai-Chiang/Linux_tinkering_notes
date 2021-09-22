@@ -8,6 +8,18 @@ Make sure you have a roll back solution (like [snap-pac](https://github.com/wesb
 
 USE AT YOUR OWN RISK.
 
+## [GnuPG setup](https://wiki.archlinux.org/title/GnuPG#Usage)
+- If you do not have gpg key for your user, generate a key pair 
+  ```
+  gpg --gen-key
+  ```
+  following [this](https://wiki.archlinux.org/title/GnuPG#Create_a_key_pair) guidance.
+
+  - To check whether you have set up secret key before, use 
+    ```
+    gpg --list-secret-keys
+    ```
+    this command.
 
 ## [E-mail password setup](https://wiki.archlinux.org/title/Msmtp#GnuPG)
 - To avoid saving the password in plain text, first create a directory with `700` permission on [tmpfs](https://wiki.archlinux.org/title/Tmpfs).
