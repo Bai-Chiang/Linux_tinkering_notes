@@ -38,6 +38,14 @@ To avoid saving the password in plain text inside script, we need to create an e
   ```
 
 ## Send e-mail using python script
+  Install system package for Arch Linux
+  ```
+  pacman -S python-gnupg
+  ```
+  For `anaconda`/`miniconda` environment,
+  ```
+  conda install -c conda-forge python-gnupg 
+  ```
   ```python
   #!/usr/bin/env python3
   
@@ -49,14 +57,15 @@ To avoid saving the password in plain text inside script, we need to create an e
   import gnupg
 
   # read password from encrypted file
-  gpg = gnupg.GPG(gnupghome='~/.gnupg')
-  with open('~/.smtp-password.gpg', 'rb') as _file:
+  home_dir = '/home/username'  # your home directory without ending slash
+  gpg = gnupg.GPG(gnupghome=home_dir+'/.gnupg')
+  with open(home_dir+'/.smtp-password.gpg', 'rb') as _file:
       decrypted_data = gpg.decrypt_file(_file)
       password = str(decrypted_data)
 
   # send e-mail, using Gmail for example
   sender = account = 'username@gmail.com' # your Gmail account
-  receiver = 'receiver@domain.com'
+  receiver = 'receiver@domain.com' # you can use the same address to send to yourself
   subject = 'Test message'
   content = 'Hello world!'
   with smtplib.SMTP('smtp.gmail.com', port=587) as server:
