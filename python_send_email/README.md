@@ -3,8 +3,9 @@
 My scientific calculation may take hours on cluster, and I want it to send me an email when it finished.
 For example:
 ```
-some_
+nohup run_calculation_command > ~/stdout 2>&1 ; python ~/send_email.py &
 ```
+After ending `run_calculation_command` it will send me an email notification.
 
 To avoid saving the password in plain text inside script, we need to create an encrypted file.
 
