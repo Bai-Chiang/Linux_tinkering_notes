@@ -1,6 +1,10 @@
 # A Python script to send email message
 
 My scientific calculation may take hours on cluster, and I want it to send me an email when it finished.
+For example:
+```
+some_
+```
 
 To avoid saving the password in plain text inside script, we need to create an encrypted file.
 
@@ -46,6 +50,7 @@ To avoid saving the password in plain text inside script, we need to create an e
   ```
   conda install -c conda-forge python-gnupg 
   ```
+  Create `send_email.py` script:
   ```python
   #!/usr/bin/env python3
   
