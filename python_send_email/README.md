@@ -83,4 +83,4 @@ To avoid saving the password in plain text inside script, we need to create an e
       msg['To'] = receiver
       server.send_message(msg)
   ```
-
+https://github.com/Bai-Qiang/Linux_tinkering_notes/blob/87eaf01c162a2f02aa6b4bbf7e9f7b2a898269b3/Arch_Linux_auto_update_script/auto-update.py#L1-L50
