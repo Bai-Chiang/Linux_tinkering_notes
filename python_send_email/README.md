@@ -3,7 +3,7 @@
 My scientific calculation may take hours on cluster, and I want it to send me an email when it finished.
 For example:
 ```
-nohup run_calculation_command > ~/stdout 2>&1 ; python ~/send_email.py &
+nohup run_calculation_command > ~/stdout 2>&1 & ; python ~/send_email.py &
 ```
 After ending `run_calculation_command` it will send me an email notification.
 
