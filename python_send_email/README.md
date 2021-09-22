@@ -3,7 +3,7 @@
 My scientific calculation may take hours on cluster, and I want it to send me an email when it finished.
 For example:
 ```
-nohup run_calculation_command > ~/stdout 2>&1 & ; python ~/send_email.py &
+nohup bash -c "run_calculation_command; python ~/send_email.py" > ~/stdout 2>&1 &
 ```
 After ending `run_calculation_command` it will send me an email notification.
 
@@ -52,4 +52,8 @@ To avoid saving the password in plain text inside script, we need to create an e
   conda install -c conda-forge python-gnupg 
   ```
   Copy/Download [`send_email.py`](https://github.com/Bai-Qiang/Linux_tinkering_notes/blob/9c4b855abfdb8334fe2512330309affcfa375b5e/python_send_email/send_email.py)
-  Change `home_dir` `sender` `receiver` `subject` `content` variable.
+  Change `home_dir` `sender` `receiver` `subject` `content` variable,
+  and its permission if you don't want other user find your email address
+  ```
+  chmod 700 send_email.py
+  ```
