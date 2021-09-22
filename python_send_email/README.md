@@ -78,3 +78,4 @@ To avoid saving the password in plain text inside script, we need to create an e
       msg['To'] = receiver
       server.send_message(msg)
   ```
+
