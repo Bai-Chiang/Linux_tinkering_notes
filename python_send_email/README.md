@@ -50,37 +50,5 @@ To avoid saving the password in plain text inside script, we need to create an e
   ```
   conda install -c conda-forge python-gnupg 
   ```
-  Create `send_email.py` script:
-  ```python
-  #!/usr/bin/env python3
-  
-  import os
-  import sys
-  import subprocess
-  import smtplib
-  from email.message import EmailMessage
-  import gnupg
-
-  # read password from encrypted file
-  home_dir = '/home/username'  # your home directory without ending slash
-  gpg = gnupg.GPG(gnupghome=home_dir+'/.gnupg')
-  with open(home_dir+'/.smtp-password.gpg', 'rb') as _file:
-      decrypted_data = gpg.decrypt_file(_file)
-      password = str(decrypted_data)
-
-  # send e-mail, using Gmail for example
-  sender = account = 'username@gmail.com' # your Gmail account
-  receiver = 'receiver@domain.com' # you can use the same address to send to yourself
-  subject = 'Test message'
-  content = 'Hello world!'
-  with smtplib.SMTP('smtp.gmail.com', port=587) as server:
-      server.starttls()
-      server.login(account, password)
-      msg = EmailMessage()
-      msg.set_content(content)
-      msg['Subject'] = subject
-      msg['From'] = sender
-      msg['To'] = receiver
-      server.send_message(msg)
-  ```
-https://github.com/Bai-Qiang/Linux_tinkering_notes/blob/87eaf01c162a2f02aa6b4bbf7e9f7b2a898269b3/Arch_Linux_auto_update_script/auto-update.py#L1-L50
+  Copy/Download [`send_email.py`](https://github.com/Bai-Qiang/Linux_tinkering_notes/blob/9c4b855abfdb8334fe2512330309affcfa375b5e/python_send_email/send_email.py)
+  Change `home_dir` `sender` `receiver` `subject` `content` variable.
