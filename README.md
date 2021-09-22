@@ -1,1 +1,1 @@
-This is a collection of my Raspberry Pi tinkering notes.
+This is a collection of my Linux tinkering notes.
