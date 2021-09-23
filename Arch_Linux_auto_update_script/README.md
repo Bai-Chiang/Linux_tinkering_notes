@@ -1,7 +1,7 @@
 # Arch Linux auto-update script
 
 Auto update system when remote machine is offline.
-For example, my NAS running Arch Linux, and I want updates only when my destop is offline.
+For example, the NAS running Arch Linux, and it updates only if the destop is offline (so the desktop is not using the NAS).
 It will then send the update result to my email.
 
 Arch Linux does not recommend unattend upgrade, see [this](https://wiki.archlinux.org/title/System_maintenance#Act_on_alerts_during_an_upgrade).
