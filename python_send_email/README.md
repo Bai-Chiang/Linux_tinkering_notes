@@ -51,7 +51,7 @@ To avoid saving the password in plain text inside script, we need to create an e
   ```
   conda install -c conda-forge python-gnupg 
   ```
-  Copy/Download [`send_email.py`](https://github.com/Bai-Qiang/Linux_tinkering_notes/blob/9c4b855abfdb8334fe2512330309affcfa375b5e/python_send_email/send_email.py)
+  Copy/Download [`send_email.py`](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/9c4b855abfdb8334fe2512330309affcfa375b5e/python_send_email/send_email.py)
   Change `home_dir` `sender` `receiver` `subject` `content` variable,
   and its permission if you don't want other user find your email address
   ```
