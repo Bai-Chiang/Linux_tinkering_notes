@@ -63,3 +63,5 @@ To avoid saving the password in plain text inside the python script, we need to 
   nohup bash -c "run_calculation; ssh username@node0 'python ~/send_email.py'" > ~/stdout 2>&1 &
   ```
   (need set up `ssh` [key authentication](https://wiki.archlinux.org/title/SSH_keys) so no password is needed when using `ssh`)
+- [Arch Linux auto update script](https://github.com/Bai-Chiang/Linux_tinkering_notes/tree/main/Arch_Linux_auto_update_script).
+
