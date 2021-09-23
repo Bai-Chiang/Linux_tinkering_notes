@@ -47,6 +47,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
         --boot uefi,loader=/usr/share/edk2-ovmf/x64/OVMF_CODE.secboot.fd,loader.readonly=yes,loader.secure=yes,loader.type=pflash,nvram.template=/usr/share/edk2-ovmf/x64/OVMF_VARS.fd \
         --features smm.state=on \
         --tpm model=tpm-crb,backend.type=emulator,backend.version=2.0 \
+        --rng model=virtio,backend.model=random,backend.source.path=/dev/urandom \
         --disk path=/path/to/OS/disk.qcow2,size=65,bus=virtio \
         --disk path=/path/to/storage/disk.qcow2,size=100,bus=virtio \
         --hostdev 01:00.0,type=pci \

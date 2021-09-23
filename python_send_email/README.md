@@ -1,19 +1,18 @@
 # A Python script to send email message
 
 ## [GnuPG setup](https://wiki.archlinux.org/title/GnuPG#Usage)
-To avoid saving the password in plain text inside script, we need to create an encrypted file.
+To avoid saving the password in plain text inside the python script, we need to create an encrypted file.
 
-- If you do not have gpg key for your user, generate a key pair 
+- If you do not have gpg key for your user, generate a key pair using this command
   ```
   gpg --gen-key
   ```
-  following [this](https://wiki.archlinux.org/title/GnuPG#Create_a_key_pair) guidance.
+  then following [this](https://wiki.archlinux.org/title/GnuPG#Create_a_key_pair) guidance.
 
-  - To check whether you have set up secret key before, use 
+  - To check whether you have already set up secret key before, use this command.
     ```
     gpg --list-secret-keys
     ```
-    this command.
 
 
 ## [Encrypt e-mail password](https://wiki.archlinux.org/title/Msmtp#GnuPG)
@@ -24,7 +23,8 @@ To avoid saving the password in plain text inside script, we need to create an e
   chmod -R 700 /tmp/my_dir
   ```
 - Then put your password in a plain text file `/tmp/my_dir/my_password` 
-  - For personal Gmail account, create an [app password].
+  - For personal Gmail account with two factor authentication enabled,
+    create an [app password](https://myaccount.google.com/apppasswords).
 - Encrypt it with
   ```
   gpg --default-recipient-self -e /tmp/my_dir/my_password
@@ -36,20 +36,22 @@ To avoid saving the password in plain text inside script, we need to create an e
   ```
 
 ## Send e-mail using python script
-  Install system package for Arch Linux
-  ```
-  pacman -S python-gnupg
-  ```
-  For `anaconda`/`miniconda` environment,
-  ```
-  conda install -c conda-forge python-gnupg 
-  ```
-  Copy/Download [`send_email.py`](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/9c4b855abfdb8334fe2512330309affcfa375b5e/python_send_email/send_email.py)
+- Copy/Download [`send_email.py`](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/9c4b855abfdb8334fe2512330309affcfa375b5e/python_send_email/send_email.py)
   Change `home_dir` `sender` `receiver` `subject` `content` variable,
-  and its permission if you don't want other user find your email address
+  and its permission if you don't want other user find out your email address
   ```
   chmod 700 send_email.py
   ```
+- Install necessary python packages
+  - Install system package, if you have root access. For example on Arch Linux, install `python-gnupg`.
+    ```
+    pacman -S python-gnupg
+    ```
+  - If using `anaconda`/`miniconda` environment,
+    install [`python-gnupg`](https://anaconda.org/conda-forge/python-gnupg) from [conda-forge](https://conda-forge.org/).
+    ```
+    conda install -c conda-forge python-gnupg 
+    ```
 
 ## Use cases
 - Scientific calculations may take hours on cluster, and I want it to send me an email when it finished.
