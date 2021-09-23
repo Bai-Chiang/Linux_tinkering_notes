@@ -1,15 +1,8 @@
 # A Python script to send email message
 
-My scientific calculation may take hours on cluster, and I want it to send me an email when it finished.
-For example:
-```
-nohup bash -c "run_calculation_command; python ~/send_email.py" > ~/stdout 2>&1 &
-```
-After ending `run_calculation_command` it will send me an email notification.
-
+## [GnuPG setup](https://wiki.archlinux.org/title/GnuPG#Usage)
 To avoid saving the password in plain text inside script, we need to create an encrypted file.
 
-## [GnuPG setup](https://wiki.archlinux.org/title/GnuPG#Usage)
 - If you do not have gpg key for your user, generate a key pair 
   ```
   gpg --gen-key
@@ -57,3 +50,14 @@ To avoid saving the password in plain text inside script, we need to create an e
   ```
   chmod 700 send_email.py
   ```
+
+## Use cases
+- Scientific calculations may take hours on cluster, and I want it to send me an email when it finished.
+  For example, `node0` is connect to internet,
+  but the code is running on `node1` which is connected with `node0` but no internet access.
+  The folllowing command will run  `run_calculation` on `node1`,
+  after finishing the calculation it will send an email notification from `node0`.
+  ```
+  nohup bash -c "run_calculation; ssh username@node0 'python ~/send_email.py'" > ~/stdout 2>&1 &
+  ```
+  (need set up `ssh` [key authentication](https://wiki.archlinux.org/title/SSH_keys) so no password is needed when using `ssh`)
