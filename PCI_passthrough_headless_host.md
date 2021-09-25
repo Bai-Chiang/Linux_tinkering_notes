@@ -32,6 +32,15 @@ This setup is for headless host that does not have `X`/`wayland` installed.
   virsh net-start default
   ```
 
+- For btrfs create a subvolume for VM images, so that it's not backuped in snapshots.
+  ```
+  btrfs subvolume create /home/username/VM_images
+  ```
+  and disable Copy-on-Write (CoW) for this directory
+  ```
+  chattr +C /home/username/VM_images
+  ```
+
 - For linux guest, download the ISO for your favourate distrobution.
   - Create VM usinng command
     ```
@@ -46,7 +55,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
         --graphics none \
         --noautoconsole \
         --boot uefi \
-        --disk path=/var/lib/libvirt/images/new_vm.qcow2,size=50,bus=virtio \
+        --disk path=/home/username/VM_images/new_vm.qcow2,size=64,bus=virtio \
         --disk path=/path/to/storage/disk.qcow2,size=100,bus=virtio \
         --hostdev 01:00.0,type=pci \
         --hostdev 01:00.1,type=pci \
