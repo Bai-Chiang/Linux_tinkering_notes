@@ -3,7 +3,8 @@ This notes uses `virt-install` command line install virtual machine instead of G
 This setup is for headless host that does not have `X`/`wayland` installed.
 
 ## [GPU Passthough setup](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF)
-- [IOMMU Group Setup](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Setting_up_IOMMU)
+- Follow the Arch Wiki make sure the system meets the [requirements](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Prerequisites)
+- [Set up IOMMU Group](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Setting_up_IOMMU)
 - [GPU Isolation](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Isolating_the_GPU)
 
 ## [Virtual Machine setup](https://wiki.archlinux.org/title/Libvirt)
@@ -13,12 +14,12 @@ This setup is for headless host that does not have `X`/`wayland` installed.
   ```
   and reboot.
 
-- [Add yourself to `libvirt`group](https://wiki.archlinux.org/title/Libvirt#Using_libvirt_group)
+- Add yourself to `libvirt`group (see [this](https://wiki.archlinux.org/title/Libvirt#Using_libvirt_group))
   ```
   usermod -aG libvirt my_username
   ```
 
-- [Start `libvirtd.service` `virtlogd.service` and enable `libvirtd.service`](https://wiki.archlinux.org/title/Libvirt#Daemon)
+- Start `libvirtd.service` `virtlogd.service` and enable `libvirtd.service` (see [this](https://wiki.archlinux.org/title/Libvirt#Daemon))
   ```
   systemctl start libvirtd.service
   systemctl start virtlogd.service
@@ -35,27 +36,28 @@ This setup is for headless host that does not have `X`/`wayland` installed.
   - Create VM usinng command
     ```
     virt-install \
-        --name your_vm_name \
+        --name new_vm \
         --memory 8192 \
         --sysinfo host \
-        --cpu host-passthrough,cache.mode=passthrough,topology.sockets=1,topology.cores=6,topology.threads=1 \
-        --os-variant name={your os variant name} \
+        --cpu host-passthrough,cache.mode=passthrough,topology.sockets=1,topology.cores=4,topology.threads=1 \
+        --os-variant detect=on,require=on,name=archlinux \
         --cdrom /path/to/linux.iso \
         --network network=default,model.type=virtio \
         --graphics none \
         --noautoconsole \
-        --boot uefi,loader=/usr/share/edk2-ovmf/x64/OVMF_CODE.secboot.fd,loader.readonly=yes,loader.secure=yes,loader.type=pflash,nvram.template=/usr/share/edk2-ovmf/x64/OVMF_VARS.fd \
-        --features smm.state=on \
-        --tpm model=tpm-crb,backend.type=emulator,backend.version=2.0 \
-        --rng model=virtio,backend.model=random,backend.source.path=/dev/urandom \
-        --disk path=/path/to/OS/disk.qcow2,size=65,bus=virtio \
+        --boot uefi \
+        --disk path=/var/lib/libvirt/images/new_vm.qcow2,size=50,bus=virtio \
         --disk path=/path/to/storage/disk.qcow2,size=100,bus=virtio \
         --hostdev 01:00.0,type=pci \
         --hostdev 01:00.1,type=pci \
-        --hostdev 0x0f39:0x0611,type=usb \
-        --hostdev 0x1532:0x0071,type=usb
+        --hostdev 0x046d:0xc52b,type=usb
     ```
-    Change the last four line changes to your GPU pcie address and usb keyboard and mouse device id.
+    - `--cpu topology.cores` specify how many CPU core this guest machine could use.
+    - `--os-variant` use `osinfo-query os` command list all os variants name
+    - If disk already exist, remove `size=` under `--disk`.
+    - `hostdev` pass host device to VM. Use `lspci` get all PCI devices and `lsusb` get all usb vendor:product ids.
+      Note that when using vender:product id for use device need add `0x` before the vender:product id output from `lsubs`.
+    See `man virt-install` for more option details.
 
 - For windows guest, download Windows ISO and virtio driver from https://github.com/virtio-win/virtio-win-pkg-scripts/blob/master/README.md if using virtio disk or virtio network.
   - Create VM usinng command
