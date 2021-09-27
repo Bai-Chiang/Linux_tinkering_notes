@@ -24,7 +24,7 @@ To avoid saving the password in plain text inside the python script, we need to 
   ```
 - Then put your password in a plain text file `/tmp/my_dir/my_password` 
   - For personal Gmail account with two factor authentication enabled,
-    create an [app password](https://myaccount.google.com/apppasswords).
+    create and use [app password](https://myaccount.google.com/apppasswords).
 - Encrypt it with
   ```
   gpg --default-recipient-self -e /tmp/my_dir/my_password
