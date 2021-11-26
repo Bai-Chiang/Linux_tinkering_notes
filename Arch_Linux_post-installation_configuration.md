@@ -16,6 +16,7 @@
 - [Add](https://wiki.archlinux.org/title/Users_and_groups#Example_adding_a_user) new admin user `tux`,
   ```
   # useradd -m -G wheel tux
+  # passwd tux
   ```
   Edit `sudoers` file with `visudo` command.
   Uncomment `%wheel ALL=(ALL) ALL` allow members in `wheel` group gain `sudo` access,
@@ -93,6 +94,63 @@
   When = PostTransaction
   Exec = /usr/bin/rsync -a --delete /boot /.bootbackup
   ```
+ 
+- dotfiles restore, based on [this](https://antelo.medium.com/how-to-manage-your-dotfiles-with-git-f7aeed8adf8b) guide
+
+  - Login as user `tux`.
+  
+  - clone git-directory
+    ```
+    $ git clone --bare <dotfiles-repo-url> $HOME/.dotfiles
+    $ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+    ```
+  - checkout. Because there may be some files like `.bashrc` or `.gitignore` in the home directory,
+    first remove (since this is fresh installed system, we simply delete them) these conflicted files then checkout.
+    ```
+    $ dotfiles checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} rm {}
+    $ dotfiles checkout
+    ```
+  - Let `git status` ignore untracked file  
+    ```
+    $ dotfiles config --local status.showUntrackedFiles no
+    ```
+  - Or you can put all these command in a single script like [this](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/restore_dotfiles.sh), then
+    ```
+    cd ~
+    wget https://raw.githubusercontent.com/Bai-Chiang/Linux_tinkering_notes/main/restore_dotfiles.sh
+    bash restore_dotfiles.sh
+    ```
+  - After setting up the desktop environment and ssh key (see below),
+    follow [this](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) guide copy public key to GitHub via web interface.
+    Then change the remove url in `~/.dotfiles/config`
+    ```
+    ...
+    [remote "origin"]
+        url = git@github.com:Bai-Chiang/dotfiles.git
+    ...
+    ```
+    Then you can push to github repository using 
+    ```
+    dotfiles push
+    ```
+    You may need extra setup for the first time, follow the hints/suggestions.
+  
+- [SSH key](https://wiki.archlinux.org/title/SSH_keys)
+
+  install `openssh` package.
+
+  [Generate](https://wiki.archlinux.org/title/SSH_keys#Ed25519) new key pair
+  ```
+  $ ssh-keygen -t ed25519
+  ```
+  to [copy public key to remote server](https://wiki.archlinux.org/title/SSH_keys#Copying_the_public_key_to_the_remote_server) with ssh port 2222
+  ```
+  ssh-copy-id -i ~/.ssh/id_ed25519.pub -p 2222 username@remote-server.org
+  ```
   
 - Wifi set up, use [iwd](https://wiki.archlinux.org/title/Iwd) or [wpa_supplicant](https://wiki.archlinux.org/title/Wpa_supplicant#At_boot_(systemd))
   (I can't connect to [MSCHAPv2](https://wiki.archlinux.org/title/Iwd#EAP-PEAP) network with `iwd`, but it works with `wpa_supplicant`.) 
+  Install `iwd` and enable `iwd.service`. Check whether wifi is block using command `rfkill list`. To unblock all wifi/bluetooth use `rfkill unblock all`, and reboot.
+  Login as admin user `tux`.
+  
+  Connect wifi with an interactive prompt with command `iwctl`, follow [this](https://wiki.archlinux.org/title/Iwd#iwctl) to connect to wifi. eduroam setup follow [this](https://wiki.archlinux.org/title/Iwd#EAP-PEAP) guide.
