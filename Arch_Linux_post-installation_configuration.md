@@ -37,6 +37,15 @@
   ```
   and enable `reflector.timer` to update mirrorlist weekly.
   
+- Install AUR helper [`paru`](https://github.com/morganamilo/paru)
+  ```
+  mkdir -p ~/.cache/paru
+  cd ~/.cache/paru
+  git clone https://aur.archlinux.org/paru.git
+  cd paru
+  makepkg -si
+  ```
+  
 - [Install](https://wiki.archlinux.org/title/Pacman#Cleaning_the_package_cache) ` pacman-contrib` package,
   then enable `paccache.timer` to delete unused pacman cache weekly.
 
@@ -154,3 +163,7 @@
   Login as admin user `tux`.
   
   Connect wifi with an interactive prompt with command `iwctl`, follow [this](https://wiki.archlinux.org/title/Iwd#iwctl) to connect to wifi. eduroam setup follow [this](https://wiki.archlinux.org/title/Iwd#EAP-PEAP) guide.
+  
+- GUI
+  - [Install driver](https://wiki.archlinux.org/title/Xorg#Driver_installation)
+  - Install desktop environment/window manager
