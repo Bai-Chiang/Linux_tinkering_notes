@@ -213,20 +213,20 @@ This arch linux installation notes will guide you set up
   (chroot) # mkinitcpio -P
   ```
 - Install [microde](https://wiki.archlinux.org/title/Microcode)
+  - for Intel processors
   ```
   (chroot) # pacman -S intel-ucode
   ```
-  for Intel processors
+  - for AMD processors
   ```
   (chroot) # pacman -S amd-ucode
   ```
-  for AMD processors
 - [Install](https://wiki.archlinux.org/title/Systemd-boot#Installation) `systemd-boot` EFI boot manager.
   ```
   (chroot) # bootctl install
   ```
   Set up [automatic update](https://wiki.archlinux.org/title/Systemd-boot#Automatic_update) the boot manager
-  after updating `systemd`, edit `/etc/pacman.d/hooks/100-systemd-boot.hook`
+  after updating systemd, edit `/etc/pacman.d/hooks/100-systemd-boot.hook`
   ```
   [Trigger]
   Type = Package
@@ -251,7 +251,7 @@ This arch linux installation notes will guide you set up
   linux   /vmlinuz-linux
   initrd  /cpu_manufacturer-ucode.img
   initrd  /initramfs-linux.img
-  options rd.luks.name=root_partition_UUID=cryptroot rd.luks.options=password-echo=no,x-systemd.device-timeout=0,timeout=0,no-read-workqueue,no-write-workqueue,discard root=/dev/mapper/cryptroot rw
+  options rd.luks.name=root_partition_UUID=cryptroot rd.luks.options=root_partition_UUID=password-echo=no,x-systemd.device-timeout=0,timeout=0,no-read-workqueue,no-write-workqueue,discard root=/dev/mapper/cryptroot rootflags=subvol=/@ rw
   ```
   replace `cpu_manufacture-ucode.img` with `intel-ucode.img` or `amd-ucode.img` depending on your processor manufacture, and use `lsblk -dno UUID /dev/nvme0n1p3` to get UUID for root partition.
   
@@ -265,7 +265,7 @@ This arch linux installation notes will guide you set up
   See [`cryttab(5)`](https://man.archlinux.org/man/crypttab.5.en) for more options.
   - If created a keyfile on the USB drive, add extra kenel parameter
     ```
-    rd.luks.key=root_partition_UUID=/mykeyfile:UUID=USB_drive_UUID
+    rd.luks.key=root_partition_UUID=/mykeyfile:UUID=USB_drive_partition_UUID
     ```
     and extra LUKS option to fallback to password prompt when the USB drive is not detected
     ```
@@ -273,7 +273,7 @@ This arch linux installation notes will guide you set up
     ```
     the options line would be
     ```
-    options rd.luks.name=root_partition_UUID=cryptroot rd.luks.key=root_partition_UUID=/mykeyfile:UUID=USB_drive_UUID rd.luks.options=password-echo=no,x-systemd.device-timeout=0,keyfile-timeout=5s,timeout=0,no-read-workqueue,no-write-workqueue,discard root=/dev/mapper/cryptroot rw
+    options rd.luks.name=root_partition_UUID=cryptroot rd.luks.key=root_partition_UUID=/mykeyfile:UUID=USB_drive_partition_UUID rd.luks.options=root_partition_UUID=password-echo=no,x-systemd.device-timeout=0,keyfile-timeout=5s,timeout=0,no-read-workqueue,no-write-workqueue,discard root=/dev/mapper/cryptroot rootflags=subvol=/@ rw
     ```
   
   Similarly, create fallback loader `/boot/loader/entries/arch-fallback.conf` by copying previous one
@@ -287,6 +287,12 @@ This arch linux installation notes will guide you set up
   initrd  /cpu_manufacturer-ucode.img
   initrd  /initramfs-linux-fallback.img
   options ...
+  ```
+- reboot
+  ```
+  (chroot) # exit
+  # umount -R /mnt
+  # reboot
   ```
     
 ## Post-installation
