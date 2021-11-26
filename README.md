@@ -13,3 +13,4 @@ This is a collection of my Linux tinkering notes.
   - btrfs snapshots backup
   - dofiles restore
   - wifi
+  - GUI
