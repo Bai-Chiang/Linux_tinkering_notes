@@ -154,6 +154,10 @@ This arch linux installation notes will guide you set up
   ```
   LANG=en_US.UTF-8
   ```
+  Set the console keyboard layout in `/etc/vconsole.conf`
+  ```
+  KEYMAP=us
+  ```
 - Set root password
   ```
   (chroot) # passwd
