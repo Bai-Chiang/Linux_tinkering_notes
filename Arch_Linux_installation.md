@@ -148,6 +148,10 @@ This arch linux installation notes will guide you set up
   ```
   LANG=en_US.UTF-8
   ```
+- Set root password
+  ```
+  (chroot) # passwd
+  ```
 - Network configuration
   create hostname file `/etc/hostname`
   ```
