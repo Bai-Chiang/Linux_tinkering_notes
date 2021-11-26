@@ -5,3 +5,5 @@ This is a collection of my Linux tinkering notes.
   - systemd-boot
   - encrypted root partition
   - systemd-networkd
+
+- [Post-installation configuration](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/Arch_Linux_post-installation_configuration.md)
