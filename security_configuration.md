@@ -2,6 +2,11 @@
 
 see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more details and complete security practice.
 
+- Login as new user make sure `sudo` is working.
+  [Disable root login](https://wiki.archlinux.org/title/Sudo#Disable_root_login) 
+  by deleting root password `sudo passwd -d root` and 
+  locking root account `sudo passwd -l root`.
+
 - Set up [Uncomplicated Firewall (ufw)](https://wiki.archlinux.org/title/Uncomplicated_Firewall)
   ```
   ufw default allow outgoing deny incoming deny routed
