@@ -295,42 +295,7 @@ This arch linux installation notes will guide you set up
   # reboot
   ```
     
-## Post-installation
-- [Add](https://wiki.archlinux.org/title/Users_and_groups#Example_adding_a_user) new user,
-  [add](https://wiki.archlinux.org/title/Users_and_groups#Group_management) it to group `wheel`.
-  Install `sudo` package use `visudo` edit `sudoers` file.
-  Uncomment `%wheel ALL=(ALL) ALL` allow members in `wheel` group gain `sudo` access,
-  or `%wheel ALL=(ALL) NOPASSWD: ALL` execute any command without password (insecure!).
-- Login as new user make sure `sudo` is working.
-  [Disable root login](https://wiki.archlinux.org/title/Sudo#Disable_root_login) 
-  by deleting root password `sudo passwd -d root` and 
-  locking root account `sudo passwd -l root`.
-- Install [reflector](https://wiki.archlinux.org/title/reflector),
-  [edit](https://wiki.archlinux.org/title/reflector#systemd_service) configuration file,
-  and enable `reflector.timer` to update mirrorlist weekly.
-- Install ` pacman-contrib` package, enable `paccache.timer` to delete unused pacman cache weekly.
-- Enable `fstrim.timer` provided by `util-linux` package for [Periodic SSD TRIM](https://wiki.archlinux.org/title/Solid_state_drive#Periodic_TRIM).
-- Install `snapper` and `cronie` package. 
-  Follow [this](https://wiki.archlinux.org/title/snapper#Suggested_filesystem_layout) guide set up snapper for root subvolume.
-  [Create](https://wiki.archlinux.org/title/snapper#Creating_a_new_configuration) new config for home and
-  [edit](https://wiki.archlinux.org/title/snapper#Set_snapshot_limits) snapshots limit for both root and home config.
-- Wifi set up, use [iwd](https://wiki.archlinux.org/title/Iwd) or [wpa_supplicant](https://wiki.archlinux.org/title/Wpa_supplicant#At_boot_(systemd))
-  (I can't connect to [MSCHAPv2](https://wiki.archlinux.org/title/Iwd#EAP-PEAP) network with `iwd`, but it works with `wpa_supplicant`.) 
-  
-## [Security](https://wiki.archlinux.org/title/Security)
-- Set up [Uncomplicated Firewall (ufw)](https://wiki.archlinux.org/title/Uncomplicated_Firewall)
-  ```
-  ufw default allow outgoing deny incoming deny routed
-  ```
-  This allow ssh incoming from local network `192.168.1.0/24` on `eth0` interface.
-  ```
-  ufw allow in on eth0 from 192.168.1.0/24 to any app ssh comment 'allow ssh incoming'
-  ```
-  Another example, allow other device on local network access [`transmission`](https://wiki.archlinux.org/title/Transmission) web interface:
-  ```
-  ufw allow in proto tcp from 192.168.1.0/24 to any port 9091 comment 'allow access transmission web interface'
-  ```
-- [Disk encryption](https://wiki.archlinux.org/title/Security#Storage)
+
 
 
 
