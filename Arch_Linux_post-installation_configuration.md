@@ -167,6 +167,7 @@
 - GUI
   - [Install driver](https://wiki.archlinux.org/title/Xorg#Driver_installation)
   - Install desktop environment/window manager
+  - set up [XDG user directories](https://wiki.archlinux.org/title/XDG_user_directories) by installing `xdg-user-dirs` then run `xdg-user-dirs-update`.
   - Install extra [fonts](https://wiki.archlinux.org/title/Fonts) (like `ttf-hack` `ttf-jetbrains-mono`), [CJK](https://wiki.archlinux.org/title/Fonts#Pan-CJK) fonts (`noto-fonts-cjk`), [Emoji and Kaomoji](https://wiki.archlinux.org/title/Fonts#Emoji_and_symbols), and [`ttf-font-awesome`](https://archlinux.org/packages/community/any/ttf-font-awesome/).
   - [PipeWire](https://wiki.archlinux.org/title/PipeWire) and `pavucontrol`
   - [Flatpak](https://wiki.archlinux.org/title/Flatpak#Update_a_runtime_or_application)
