@@ -170,3 +170,8 @@
   - Install extra [fonts](https://wiki.archlinux.org/title/Fonts) (like `ttf-hack` `ttf-jetbrains-mono`), [CJK](https://wiki.archlinux.org/title/Fonts#Pan-CJK) fonts (`noto-fonts-cjk`), [Emoji and Kaomoji](https://wiki.archlinux.org/title/Fonts#Emoji_and_symbols), and [`ttf-font-awesome`](https://archlinux.org/packages/community/any/ttf-font-awesome/).
   - [PipeWire](https://wiki.archlinux.org/title/PipeWire) and `pavucontrol`
   - [Flatpak](https://wiki.archlinux.org/title/Flatpak#Update_a_runtime_or_application)
+    
+    Add repo
+    ```
+    flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    ```
