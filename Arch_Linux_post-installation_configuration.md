@@ -175,7 +175,7 @@
     ```
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     ```
-    To set dark theme for GTK application add `GTK_THEME=Adwaita:dark` to environment variable.
+    To set dark theme for GTK application add `GTK_THEME=Adwaita:dark` to environment variable, also read [this](https://wiki.archlinux.org/title/GTK#Basic_theme_configuration) for basic configuration.
     For Qt application set `QT_STYLE_OVERRIDE=Adwaita-Dark`.
     For Qt flatpak application also install
     ```
