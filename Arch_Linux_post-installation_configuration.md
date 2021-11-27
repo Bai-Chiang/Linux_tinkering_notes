@@ -171,7 +171,15 @@
   - [PipeWire](https://wiki.archlinux.org/title/PipeWire) and `pavucontrol`
   - [Flatpak](https://wiki.archlinux.org/title/Flatpak#Update_a_runtime_or_application)
     
-    Add repo
+    Add flatpak repo
     ```
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    ```
+    To set dark theme for GTK application add `GTK_THEME=Adwaita:dark` to environment variable.
+    For Qt application set `QT_STYLE_OVERRIDE=Adwaita-Dark`.
+    For Qt flatpak application also install
+    ```
+    flatpak install flathub org.freedesktop.Platform.Icontheme.Adwaita
+    flatpak install flathub org.kde.KStyle.Adwaita
+    flatpak install flathub org.kde.PlatformTheme.QGnomePlatform
     ```
