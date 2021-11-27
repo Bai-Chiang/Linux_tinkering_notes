@@ -179,7 +179,7 @@
     For Qt application set `QT_STYLE_OVERRIDE=Adwaita-Dark`.
     For Qt flatpak application also install
     ```
-    flatpak install flathub org.freedesktop.Platform.Icontheme.Adwaita
-    flatpak install flathub org.kde.KStyle.Adwaita
-    flatpak install flathub org.kde.PlatformTheme.QGnomePlatform
+    flatpak install --user flathub org.freedesktop.Platform.Icontheme.Adwaita
+    flatpak install --user flathub org.kde.KStyle.Adwaita
+    flatpak install --user flathub org.kde.PlatformTheme.QGnomePlatform
     ```
