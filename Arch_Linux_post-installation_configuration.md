@@ -177,11 +177,12 @@
     ```
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     ```
-    To set dark theme for GTK application add `GTK_THEME=Adwaita:dark` to environment variable, also read [this](https://wiki.archlinux.org/title/GTK#Basic_theme_configuration) for basic configuration.
-    For Qt application set `QT_STYLE_OVERRIDE=Adwaita-Dark`.
-    For Qt flatpak application also install
-    ```
-    flatpak install --user flathub org.freedesktop.Platform.Icontheme.Adwaita
-    flatpak install --user flathub org.kde.KStyle.Adwaita
-    flatpak install --user flathub org.kde.PlatformTheme.QGnomePlatform
-    ```
+  - Theming
+  
+    When using window manager, there is no theming engine, and all GUI applications launch as default theme.
+    I don't need all applications have consistant theming, but I do want them using dark theme instead of default light theme.
+    For [GTK applications](https://wiki.archlinux.org/title/GTK#Themes) add `GTK_THEME=Adwaita:dark` to environment variable, also create `~/.config/settings.ini` then follow [this](https://wiki.archlinux.org/title/GTK#Basic_theme_configuration) guide set up a basic configuration.
+    For Qt application using Adwaita-dark theme feels odd, I prefer using Breeze dark theme, but there is no easy way to specify the theme.
+    So I copied `~/.config/kdeglobals` from another machine with Breeze-dark theme, then set `QT_QPA_PLATFORMTHEME=kde`.
+    The config files `settings.ini` and `kdeglobals` could be backup using [this](https://antelo.medium.com/how-to-manage-your-dotfiles-with-git-f7aeed8adf8b) method, so you only need to set up once.
+
