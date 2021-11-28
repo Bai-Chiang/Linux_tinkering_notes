@@ -65,9 +65,9 @@ This arch linux installation notes will guide you set up
     ```
     # parted /dev/sdb 
     (parted) mklabel gpt
-    (parted) mkpart partition1 ext4 0% 100%
+    (parted) mkpart partition1 fat32 0% 100%
     (parted) quit
-    # mkfs.ext4 /dev/sdb1
+    # mkfs.fat -F32 /dev/sdb1
     # mkdir /media
     # mount /dev/sdb1 /media
     ```
@@ -206,7 +206,7 @@ This arch linux installation notes will guide you set up
   ```
   - If created a keyfile on the USB drive, also [add its file system to the kernel module](https://wiki.archlinux.org/title/Dm-crypt/Device_encryption#Configuring_mkinitcpio) in `/etc/mkinitcpio.conf`
     ```
-    MODULES=(ext4)
+    MODULES=(vfat)
     ```
   then regenerate the initramfs
   ```
