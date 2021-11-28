@@ -29,7 +29,7 @@ ___
   Read and change email address and some other variables in the script. 
 
 - Create a systemd unit `/etc/systemd/system/auto-update.service`.
-  The following unit file restart service every 5 minutes if it fails, maximum 5 retries.
+  The following unit file restart service every 15 minutes if it fails, maximum 5 retries.
   ```
   [Unit]
   Description=Auto-update
