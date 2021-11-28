@@ -177,6 +177,50 @@
     ```
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     ```
+    To automatically update flatpak applications everyday, create this service file `~/.config/systemd/user/flatpak-update.service`
+    ```
+    [Unit]
+    Description=Update flatpak
+    StartLimitIntervalSec=3h
+    StartLimitBurst=5
+    OnFailure=failure-notification@%n
+
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/bin/flatpak update --assumeyes
+    Restart=on-failure
+    RestartSec=30min
+
+    ```
+    It try to update all flatpak packages, if failed it will retry at most 5 times every 30min.
+    If this service failed it will send a notification through another systemd service `~/.config/systemd/user/failure-notification@.service`
+    ```
+    [Unit]
+    Description=Send a notification about a failed systemd unit
+
+    [Service]
+    Type=simple
+    ExecStart=/usr/bin/notify-send "service %i failed"
+    ```
+    It send a desktop notification (needs `libnotify` package and a [notification server](https://wiki.archlinux.org/title/Desktop_notifications#Notification_servers).
+    To automate update every day crate a timer file `~/.config/systemd/user/flatpak-update.timer`
+    ```
+    [Unit]
+    Description=Update flatpak applications on boot
+    
+    [Timer]
+    OnCalendar=daily
+    Persistent=true
+    
+    [Install]
+    WantedBy=timers.target
+    ```
+    Then enable timer
+    ```
+    $ systemctl --user daemon-reload
+    $ systemctl --user enable --now flatpak-update.timer
+    ```
+    
   - Theming
   
     When using window manager, there is no theming engine, and all GUI applications launch as default theme.
