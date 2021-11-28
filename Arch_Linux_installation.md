@@ -196,6 +196,16 @@ This arch linux installation notes will guide you set up
   [DHCP]
   RouteMetric=20
   ```
+  If there are multiple network interface, by default [systemd-networkd-wait-online](https://wiki.archlinux.org/title/Systemd-networkd#systemd-networkd-wait-online) will wait _all_ interfaces. To change this behaviour to wait _any_ interface [edit](https://wiki.archlinux.org/title/Systemd#Editing_provided_units) default service
+  ```
+  (chroot) # systemctl edit systemd-networkd-wait-online.service
+  ```
+  then add lines
+  ```
+  [Service]
+  ExecStart=
+  ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --any
+  ```
 - [Configure mkinitcpio hooks](https://wiki.archlinux.org/title/Dm-crypt/System_configuration#mkinitcpio)
 
   Edit `/etc/mkinitcpio.conf`
