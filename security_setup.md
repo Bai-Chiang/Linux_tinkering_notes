@@ -99,7 +99,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     ```
     # sbkeysync --verbose
     ```
-    If `sbkeytync` returns write error, run  command `chattr -i /sys/firmware/efi/efivars/{PK,KEK,db}*` then try again.
+    If `sbkeytync` returns write error or can't create key file, run  command `chattr -i /sys/firmware/efi/efivars/{PK,KEK,db}*` then try again.
     
     Enroll your PK
     ```
