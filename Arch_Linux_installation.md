@@ -251,8 +251,8 @@ This arch linux installation notes will guide you set up
   Create [loader configuration](https://wiki.archlinux.org/title/Systemd-boot#Loader_configuration) file `/boot/loader/loader.conf`
   ```
   default  arch.conf
-  timeout  3
-  console-mode max
+  timeout  1
+  console-mode keep
   editor   no
   ```
   and new [loader](https://wiki.archlinux.org/title/Systemd-boot#Adding_loaders), `/boot/loader/entries/arch.conf`
