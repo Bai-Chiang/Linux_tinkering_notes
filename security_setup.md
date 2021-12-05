@@ -155,7 +155,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     [Action]
     Description = Signing Kernel for SecureBoot
     When = PostTransaction
-    Exec = /usr/bin/find /boot -type f -name 'archlinux-linux*.efi' -exec /usr/bin/sh -c 'if ! /usr/bin/sbverify --list {} 2>/dev/null | /usr/bin/grep -q "signature certificates"; then /usr/bin/sbsign --key /etc/efi-keys/db.key --cert /etc/efi-keys/db.crt --output "$1" "$1"; fi' _ {} ;
+    Exec = /usr/bin/find /boot -type f ( -name 'archlinux-linux*.efi' -o -name systemd* ) -exec /usr/bin/sh -c 'if ! /usr/bin/sbverify --list {} 2>/dev/null | /usr/bin/grep -q "signature certificates"; then /usr/bin/sbsign --key /etc/efi-keys/db.key --cert /etc/efi-keys/db.crt --output "$1" "$1"; fi' _ {} ;
     Depends = sbsigntools
     Depends = findutils
     Depends = grep
