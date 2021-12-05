@@ -155,20 +155,17 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     [Action]
     Description = Signing Kernel for SecureBoot
     When = PostTransaction
-    Exec = /usr/bin/find /boot -type f ( -name 'archlinux-linux*.efi' -o -name systemd* ) -exec /usr/bin/sh -c 'if ! /usr/bin/sbverify --list {} 2>/dev/null | /usr/bin/grep -q "signature certificates"; then /usr/bin/sbsign --key /etc/efi-keys/db.key --cert /etc/efi-keys/db.crt --output "$1" "$1"; fi' _ {} ;
+    Exec = /usr/bin/find /boot -type f ( -name 'archlinux-linux*.efi' -o -name systemd* -o -name BOOTX64.EFI ) -exec /usr/bin/sh -c 'if ! /usr/bin/sbverify --list {} 2>/dev/null | /usr/bin/grep -q "signature certificates"; then /usr/bin/sbsign --key /etc/efi-keys/db.key --cert /etc/efi-keys/db.crt --output "$1" "$1"; fi' _ {} ;
     Depends = sbsigntools
     Depends = findutils
     Depends = grep
     ```
     
-    Sign the unified kernel image and check it works with reinstall `linux` package
+    Sign the unified kernel image and boot manager also check the pacman hook works with reinstalling `systemd` package
     ```
-    pacman -S linux
+    pacman -S systemd
     ```
-    Sign the boot manager
-    ```
-    # sbsign --key db.key --cert /etc/efi-keys/db.crt --output esp/EFI/BOOT/BOOTx64.EFI esp/EFI/BOOT/BOOTx64.EFI
-    ```
+
   - Update boot entry
    
     update default boot entry in systemd-boot loader `/boot/loader/loader.conf`
