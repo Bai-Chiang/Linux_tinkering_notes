@@ -208,3 +208,58 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
   # <filesystem>    <dir>  <type>  <options>  <dump>  <pass>
   /dev/mapper/swap  none   swap    defaults   0       0
   ```
+  
+- Encrypt non-root partition, like external hard drive
+  
+  - Create a key file
+  
+    ```
+    # dd bs=512 count=4 if=/dev/random of=/path/to/mykeyfile iflag=fullblock
+    # chmod 600 /path/to/mykeyfile
+    ```
+  
+  - Setup LUKS encryption on partition `/dev/sdX1`
+  
+    ```
+    # cryptsetup --type luks2 --verify-passphrase --sector-size 4096 --key-file=/path/to/mykeyfile --verbose luksFormat /dev/sdX1
+    ```
+  - Create filesystem
+    ```
+    # cryptsetup open --key-file /path/to/mykeyfile /dev/sdX1 crypt_device_name
+    # mkfs.btrfs --label crypt_device_label /dev/mapper/crypt_device_name
+    # cryptsetup close crypt_device_name
+    ```
+  - Now you could decrypt device using 
+    ```
+    # cryptsetup open --key-file /path/to/mykeyfile LABEL=crypt_device_label crypt_mapping_name
+    ```
+    then mount with
+    ```
+    # mount /dev/mapper/crypt_mapping_name /mnt
+    ```
+  - Or add entry to `/etc/crypttab`
+
+    ```
+    # <name>              <device>                    <password>             <options>
+    crypt_mapping_name     LABEL=crypt_device_label    /path/to/mykeyfile     noauto
+    ```
+    Now you can decrypt the drive using 
+    ```
+    # systemctl start systemd-cryptsetup@crypt_mapping_name.service
+    ```
+  - (Optional) [Enroll TPM 2.0 key](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll)
+    ```
+    # systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7 /dev/sdX1
+    ```
+    test the key
+    ```
+    # /usr/lib/systemd/systemd-cryptsetup attach crypt_device_name /dev/sdX1 - tpm2-device=auto
+    ```
+    now you should be able to `mount /dev/mapper/crypt_mapping_name /mnt`
+  
+    update `/etc/crypttab`
+    ```
+    # <name>              <device>                    <password>             <options>
+    crypt_mapping_name     LABEL=crypt_device_label    -                      noauto,tpm2-device=auto
+    ```
+  
