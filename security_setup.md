@@ -31,6 +31,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
   but still work after the OS is booted.
   This would be a problem for video cards, because before boot no video output you can't enter BIOS, 
   or PXE-booting NIC if you boot over network.
+  In that case we need to enroll Microsoft's key, but that defeat the benefits of using your own key.
   Read [Rod Smith's secure boot guide](https://www.rodsbooks.com/efi-bootloaders/controlling-sb.html) and [ArchWiki page](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot) to understand secure boot.
   
   - Preparation
@@ -173,6 +174,9 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     default  archlinux-linux.efi
     ...
     ```
+  - (optional) [enroll Microsoft's key for UEFI drivers, option ROMs etc.](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Dual_booting_with_other_operating_systems)
+
+    
  
 - [Swap encryption](https://wiki.archlinux.org/title/Dm-crypt/Swap_encryption) (without suspend-to-disk/hibernation)
   
