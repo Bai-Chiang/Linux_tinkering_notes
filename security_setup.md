@@ -161,9 +161,13 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     Depends = grep
     ```
     
-    Check it works with reinstall `linux` package
+    Sign the unified kernel image and check it works with reinstall `linux` package
     ```
     pacman -S linux
+    ```
+    Sign the boot manager
+    ```
+    # sbsign --key db.key --cert /etc/efi-keys/db.crt --output esp/EFI/BOOT/BOOTx64.EFI esp/EFI/BOOT/BOOTx64.EFI
     ```
   - Update boot entry
    
