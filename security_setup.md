@@ -108,7 +108,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     ```
     If failed, run command `efi-updatevar -f /usr/share/secureboot/keys/PK/PK.auth PK` then try again.
   
-  - Setup [unified kernel image]((https://wiki.archlinux.org/title/Unified_kernel_image)
+  - Setup [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image)
   
     To protect both initramfs and kernel we need to set up a unified kernel image.
   
