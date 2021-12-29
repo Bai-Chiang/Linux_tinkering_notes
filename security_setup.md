@@ -176,6 +176,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     default  archlinux-linux.efi
     ...
     ```
+    and optionally clear entries in `/boot/loader/entries`.
   - (optional) [enroll Microsoft's key for UEFI drivers, option ROMs etc.](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Dual_booting_with_other_operating_systems)
 
     
