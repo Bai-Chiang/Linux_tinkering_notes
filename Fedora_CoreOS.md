@@ -61,6 +61,7 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     butane --pretty --strict example.bu > example.ign
     ```
 - [Download](https://getfedora.org/en/coreos/download) and verify Fedora CoreOS stable version.
+  You may need to extract it `unxz fedora-coreos-*.qcow2.xz`.
 - Create new VM using `virt-install`
   ```
   IGNITION_CONFIG="/path/to/example.ign"
