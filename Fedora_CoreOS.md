@@ -56,5 +56,29 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     Then we add ssh authentication key to the default user `core`. The line `- ssh-ed22519 AAA...` is the line in `~/.ssh/id_ed25519.pub` after you set up your ssh key authentication.
     Next, we specify the host name as `myhostname`.
     We also created a systemd service `hello.service` which will start at boot.
-
-
+  - Generate `example.ign`
+    ```
+    butane --pretty --strict example.bu > example.ign
+    ```
+- [Download](https://getfedora.org/en/coreos/download) and verify Fedora CoreOS stable version.
+- Create new VM using `virt-install`
+  ```
+  IGNITION_CONFIG="/path/to/example.ign"
+  IMAGE="/path/to/image.qcow2"
+  VM_NAME="fcos-example"
+  VCPUS="2"
+  RAM_MB="2048"
+  DISK_GB="10"
+  
+  virt-install \
+    --connect qemu:///system \
+    --name ${VM_NAME} \
+    --memory ${RAM_MB} \
+    --cpu host,topology.sockets=1,topology.cores=${VCPUS},topology.threads=1 \
+    --os-variant detect=off,require=on,name=fedora-coreos-stable \
+    --network network=default,model.type=virtio \
+    --import \
+    --graphics none \
+    --disk size=${DISK_GB},bus=virtio,backing_store=${IMAGE} \
+    --qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}"
+  ```
