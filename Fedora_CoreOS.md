@@ -62,7 +62,7 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     ```
 - [Download](https://getfedora.org/en/coreos/download) and verify Fedora CoreOS stable version.
   You may need to extract it `unxz fedora-coreos-*.qcow2.xz`.
-- Create new VM using `virt-install`
+- Create new VM. Paste these lines to `example.sh`
   ```
   IGNITION_CONFIG="/path/to/example.ign"
   IMAGE="/path/to/image.qcow2"
@@ -82,4 +82,12 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     --graphics none \
     --disk size=${DISK_GB},bus=virtio,backing_store=${IMAGE} \
     --qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}"
+  ```
+  then run it with
+  ```
+  bash example.sh
+  ```
+- Find out the virtual machine ip adress from `virt-manager`. Now you shoud be able to login with
+  ```
+  ssh core@ip.address
   ```
