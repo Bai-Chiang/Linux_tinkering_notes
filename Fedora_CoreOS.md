@@ -56,6 +56,26 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     Then we add ssh authentication key to the default user `core`. The line `- ssh-ed22519 AAA...` is the line in `~/.ssh/id_ed25519.pub` after you set up your ssh key authentication.
     Next, we specify the host name as `myhostname`.
     We also created a systemd service `hello.service` which will start at boot.
+    
+    If you want to assign network configuration add these lines under `storage:` section
+    ```
+    files:
+    - path: /etc/NetworkManager/system-connections/enp1s0.nmconnection
+      mode: 0600
+      contents:
+        inline: |
+          [connection]
+          id=enp1s0
+          type=ethernet
+          interface-name=enp1s0
+          [ipv4]
+          address1=192.168.1.10/24,192.168.1.1
+          dhcp-hostname=myhostname
+          dns=9.9.9.9;
+          dns-search=
+          may-fail=false
+          method=manual
+    ```
   - Generate `example.ign`
     ```
     butane --pretty --strict example.bu > example.ign
