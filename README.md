@@ -16,6 +16,7 @@ This is a collection of my Linux tinkering notes.
   - wifi
   - GUI
 
+- [Fedora CoreOS](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/Fedora_CoreOS.md)
 - [A python script to send email](https://github.com/Bai-Chiang/Linux_tinkering_notes/tree/main/python_send_email)
 - [Auto update setup for Arch Linux server (with email report)](https://github.com/Bai-Chiang/Linux_tinkering_notes/tree/main/Arch_Linux_auto_update_script)
 - [Auto start/stop virtual machines python script](https://github.com/Bai-Chiang/Linux_tinkering_notes/tree/main/libvirt_python_script)
