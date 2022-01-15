@@ -57,9 +57,8 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     Next, we specify the host name as `myhostname`.
     We also created a systemd service `hello.service` which will start at boot.
     
-    If you want to assign network configuration add these lines under `storage:` section
+    If you want to assign [network configuration](https://docs.fedoraproject.org/en-US/fedora-coreos/sysconfig-network-configuration/) add these lines under `files:` section
     ```
-    files:
     - path: /etc/NetworkManager/system-connections/enp1s0.nmconnection
       mode: 0600
       contents:
@@ -69,7 +68,7 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
           type=ethernet
           interface-name=enp1s0
           [ipv4]
-          address1=192.168.1.10/24,192.168.1.1
+          address1=192.168.122.10/24,192.168.122.1
           dhcp-hostname=myhostname
           dns=9.9.9.9;
           dns-search=
@@ -82,7 +81,7 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     ```
 - [Download](https://getfedora.org/en/coreos/download) and verify Fedora CoreOS stable version.
   You may need to extract it `unxz fedora-coreos-*.qcow2.xz`.
-- Create new VM. Paste these lines to `example.sh`
+- Create new VM. Paste these lines to `example_ignition.sh`
   ```
   IGNITION_CONFIG="/path/to/example.ign"
   IMAGE="/path/to/image.qcow2"
@@ -105,9 +104,13 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
   ```
   then run it with
   ```
-  bash example.sh
+  bash example_ignition.sh
   ```
 - Find out the virtual machine ip adress from `virt-manager`. Now you shoud be able to login with
   ```
   ssh core@ip.address
+  ```
+  and you can check the `hello.service` we defined in `butane.bu` is running with
+  ```
+  systemctl status hello.service
   ```
