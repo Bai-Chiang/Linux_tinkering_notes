@@ -135,6 +135,8 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     +fallback_efi_image="esp/EFI/Linux/archlinux-linux-fallback.efi"
     ```
     added lines start with `+` deleted line start with `-`. Here we added Arch Linux logo to splash screen.
+    
+    Also modify other kernel presets you installed. For example, modify `/etc/mkinitcpio.d/linux-zen.preset` for `linux-zen` kernel.  
   
     Creat `/etc/kernel/cmdline` with your kernel parameters
     ```
