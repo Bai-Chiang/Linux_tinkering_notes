@@ -126,13 +126,13 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
      default_image="/boot/initramfs-linux.img"
     -#default_options=""
     +default_options="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
-    +default_efi_image="esp/EFI/Linux/archlinux-linux.efi"
+    +default_efi_image="/boot/EFI/Linux/archlinux-linux.efi"
 
      #fallback_config="/etc/mkinitcpio.conf"
      fallback_image="/boot/initramfs-linux-fallback.img"
     -fallback_options="-S autodetect"
     +fallback_options="-S autodetect --splash /usr/share/systemd/bootctl/splash-arch.bmp"
-    +fallback_efi_image="esp/EFI/Linux/archlinux-linux-fallback.efi"
+    +fallback_efi_image="/boot/EFI/Linux/archlinux-linux-fallback.efi"
     ```
     added lines start with `+` deleted line start with `-`. Here we added Arch Linux logo to splash screen.
     
