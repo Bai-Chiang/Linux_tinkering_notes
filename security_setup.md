@@ -154,7 +154,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     Operation = Install
     Operation = Upgrade
     Type = Package
-    Target = linux
+    Target = linux*
     Target = systemd
 
     [Action]
