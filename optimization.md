@@ -1,0 +1,2 @@
+- Comple AUR package with `-march=native`, read [this](https://wiki.archlinux.org/title/Makepkg#Building_optimized_binaries)
+- Improve AUR compile time, read [this](https://wiki.archlinux.org/title/Makepkg#Improving_compile_times)
