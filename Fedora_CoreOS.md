@@ -99,10 +99,14 @@ Setup Fedora CoreOS as a disposable VM to run container applications.
     --network network=default,model.type=virtio \
     --import \
     --graphics none \
+    --noautoconsole \
     --disk size=${DISK_GB},bus=virtio,backing_store=${IMAGE} \
     --qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}"
   ```
-  then run it with
+  If you want to connect to a bridge network called `br0` in the host, change the `--network` line to 
+  `--network bridge=br0,model.type=virtio \`
+  
+  then run the script with
   ```
   bash example_ignition.sh
   ```
