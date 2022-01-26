@@ -15,10 +15,10 @@ if ping_failed:
 
     # update system if remote machine powered off
     try:
-        output = subprocess.check_output('pacman -Syu --noconfirm', shell=True, text=True)
+        output = subprocess.check_output('pacman -Syu --noconfirm', shell=True, text=True, stderr=subprocess.STDOUT)
         update_succeed = True
     except subprocess.CalledProcessError as err:
-        output =  err
+        output = err.output
         update_succeed = False
 
 
