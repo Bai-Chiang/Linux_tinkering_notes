@@ -148,7 +148,22 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     ```
     # mkinitcpio -P
     ```
-    Add a pacman hook `/etc/pacman.d/hooks/99-secureboot.hook` to auto re-sign it when update
+    Add pacman hooks to update and re-sign systemd-boot when systemd is updated
+    
+    `/etc/pacman.d/hooks/100-systemd-boot.hook`
+    ```
+    [Trigger]
+    Type = Package
+    Operation = Upgrade
+    Target = systemd
+
+    [Action]
+    Description = Gracefully upgrading systemd-boot...
+    When = PostTransaction
+    Exec = /usr/bin/systemctl restart systemd-boot-update.service
+    ```
+    
+    `/etc/pacman.d/hooks/99-secureboot.hook`
     ```
     [Trigger]
     Operation = Install
