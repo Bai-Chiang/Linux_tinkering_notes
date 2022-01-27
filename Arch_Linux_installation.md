@@ -236,18 +236,25 @@ This arch linux installation notes will guide you set up
   (chroot) # bootctl install
   ```
   Set up [automatic update](https://wiki.archlinux.org/title/Systemd-boot#Automatic_update) the boot manager
-  after updating systemd, edit `/etc/pacman.d/hooks/100-systemd-boot.hook`
+  after updating systemd by enabling `systemd-boot-update.service`
   ```
-  [Trigger]
-  Type = Package
-  Operation = Upgrade
-  Target = systemd
-
-  [Action]
-  Description = Updating systemd-boot
-  When = PostTransaction
-  Exec = /usr/bin/bootctl update
+  (chroot) # systemctl enable systemd-boot-update.service
   ```
+  > As of version 250, added `systemd-boot-update.service` so this pacman hook is no longer needed.
+  > 
+  > `/etc/pacman.d/hooks/100-systemd-boot.hook`
+  > 
+  > ```
+  > [Trigger]
+  > Type = Package
+  > Operation = Upgrade
+  > Target = systemd
+  > 
+  > [Action]
+  > Description = Updating systemd-boot
+  > When = PostTransaction
+  > Exec = /usr/bin/bootctl update
+  > ```
   Create [loader configuration](https://wiki.archlinux.org/title/Systemd-boot#Loader_configuration) file `/boot/loader/loader.conf`
   ```
   default  arch.conf
