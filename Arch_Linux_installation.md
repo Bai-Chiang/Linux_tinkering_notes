@@ -59,6 +59,7 @@ This arch linux installation notes will guide you set up
 - [Setup encrypted root partition with LUKS mode](https://wiki.archlinux.org/title/Dm-crypt/Device_encryption#Encryption_options_for_LUKS_mode)
   ```
   # cryptsetup --type luks2 --verify-passphrase --sector-size 4096 --verbose luksFormat /dev/nvme0n1p3
+  # cryptsetup open /dev/nvme0n1p3 cryptroot
   ```
 - Optionally, add a keyfile to an USB drive to auto unlock when pluged in.
   - Plug in the USB drive `/dev/sdb`, format and mount it as `/media`
@@ -83,11 +84,11 @@ This arch linux installation notes will guide you set up
     Or
     ```
     # cryptsetup --type luks2 --verify-passphrase --sector-size 4096 --key-file=/media/mykeyfile --verbose luksFormat /dev/nvme0n1p3
+    # cryptsetup open /dev/nvme0n1p3 cryptroot --key-file=/media/mykeyfile
     ```
     create a encrypted partition without passphrase (keyfile only).
 - Format root partition as [btrfs](https://btrfs.wiki.kernel.org/index.php/Using_Btrfs_with_Multiple_Devices#Filesystem_creation) 
   ```
-  # cryptsetup open /dev/nvme0n1p3 cryptroot
   # mkfs.btrfs /dev/mapper/cryptroot
   # mount /dev/mapper/cryptroot /mnt
   ```
