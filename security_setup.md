@@ -79,7 +79,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     # sign-efi-sig-list -g "$(< GUID.txt)" -k KEK.key -c KEK.crt db db.esl db.auth
     ```
   
-  - [Put firmware in "setup mode".]https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Putting_firmware_in_%22Setup_Mode%22).
+  - [Put firmware in "setup mode".](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Putting_firmware_in_%22Setup_Mode%22)
   
   Run command `bootctl status` if `Setup Mode: user` means you are in user mode, `Setup Mode: setup` means you are in setup mode.
   
@@ -106,7 +106,7 @@ see [ArchWiki-security](https://wiki.archlinux.org/title/Security) for more deta
     ```
     # sbkeysync --verbose --pk
     ```
-    If failed, run command `efi-updatevar -f /usr/share/secureboot/keys/PK/PK.auth PK` then try again.
+    If failed, run command `efi-updatevar -f /etc/secureboot/keys/PK/PK.auth PK` then try again.
   
   - Setup [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image)
   
