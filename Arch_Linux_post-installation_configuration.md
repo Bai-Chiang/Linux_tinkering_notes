@@ -11,8 +11,6 @@
 
   Add line `export EDITOR=/usr/bin/vim` to the end of `/etc/profile` to set vim as default editor.
   
-- Install `base-devel` package group, which provides soem essential packages like `sudo`, `grep` etc.
-  
 - [Add](https://wiki.archlinux.org/title/Users_and_groups#Example_adding_a_user) new admin user `tux`,
   ```
   # useradd -m -G wheel tux
@@ -37,7 +35,8 @@
   ```
   and enable `reflector.timer` to update mirrorlist weekly.
   
-- Install AUR helper [`paru`](https://github.com/morganamilo/paru)
+- Install AUR helper [`paru`](https://github.com/morganamilo/paru).
+  First install `base-devel` package group, then
   ```
   mkdir -p ~/.cache/paru
   cd ~/.cache/paru
