@@ -125,7 +125,7 @@
   - Or you can put all these command in a single script like [this](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/restore_dotfiles.sh), then
     ```
     cd ~
-    wget https://raw.githubusercontent.com/Bai-Chiang/Linux_tinkering_notes/main/restore_dotfiles.sh
+    curl -O https://raw.githubusercontent.com/Bai-Chiang/Linux_tinkering_notes/main/restore_dotfiles.sh
     bash restore_dotfiles.sh
     ```
   - After setting up the desktop environment and ssh key (see below),
