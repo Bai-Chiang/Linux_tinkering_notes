@@ -74,6 +74,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
     virt-install \
         --name your_windows_vm_name \
         --memory 8192 \
+        --memorybacking allocation=ondemand \
         --sysinfo host \
         --cpu host-passthrough,cache.mode=passthrough,topology.sockets=1,topology.cores=6,topology.threads=1 \
         --os-variant name=win10 \
