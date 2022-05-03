@@ -74,7 +74,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
     virt-install \
         --name your_windows_vm_name \
         --memory 8192 \
-        --memorybacking allocation=ondemand \
+        --memorybacking allocation.mode=ondemand \
         --sysinfo host \
         --cpu host-passthrough,cache.mode=passthrough,topology.sockets=1,topology.cores=6,topology.threads=1 \
         --os-variant name=win10 \
@@ -93,7 +93,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
         --hostdev 0x0f39:0x0611,type=usb \
         --hostdev 0x1532:0x0071,type=usb
     ```
-    Change the last four line changes to your GPU pcie address and usb keyboard and mouse device id.
+    Change the last four line changes to your GPU pcie address and usb keyboard and mouse device id. You may need to install `swtpm` package to use tpm emulation.
 
 - If your computer comes with windows OEM activation, use this command to get your OEM key, and use it during installation process.
   ```
