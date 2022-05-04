@@ -109,7 +109,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
   <spinlocks state="on" retries="8191"/>
   </hyperv>
   ```
-  and this line
+  also remove this line
   ```
   <timer name="hypervclock" present="yes"/>
   ```
