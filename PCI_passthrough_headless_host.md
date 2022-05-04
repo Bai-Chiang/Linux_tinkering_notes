@@ -84,7 +84,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
         --graphics none \
         --noautoconsole \
         --boot firmware=efi,firmware.feature.name=secure-boot,firmware.feature.enabled=yes,os_type=hvm \
-        --features smm.state=on \
+        --features smm.state=on,kvm_hidden=on \
         --tpm model=tpm-crb,backend.type=emulator,backend.version=2.0 \
         --disk path=/path/to/OS/disk.qcow2,size=65,bus=virtio \
         --disk path=/path/to/storage/disk.qcow2,size=100,bus=virtio \
