@@ -83,7 +83,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
         --network network=default,model.type=virtio \
         --graphics none \
         --noautoconsole \
-        --boot uefi,loader=/usr/share/edk2-ovmf/x64/OVMF_CODE.secboot.fd,loader.readonly=yes,loader.secure=yes,loader.type=pflash,nvram.template=/usr/share/edk2-ovmf/x64/OVMF_VARS.fd \
+        --boot firmware=efi,firmware.feature.name=secure-boot,firmware.feature.enabled=yes,os_type=hvm \
         --features smm.state=on \
         --tpm model=tpm-crb,backend.type=emulator,backend.version=2.0 \
         --disk path=/path/to/OS/disk.qcow2,size=65,bus=virtio \
