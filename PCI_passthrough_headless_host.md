@@ -100,5 +100,18 @@ This setup is for headless host that does not have `X`/`wayland` installed.
   sudo strings /sys/firmware/acpi/tables/MSDM | tail -1
   ```
 
-- Nvidia laptop driver error code 43, see https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#%22Error_43:_Driver_failed_to_load%22_with_mobile_(Optimus/max-q)_nvidia_GPUs
+- Nvidia laptop driver error code 43,
+  remove these lines in xml
+  ```
+  <hyperv>
+  <relaxed state="on"/>
+  <vapic state="on"/>
+  <spinlocks state="on" retries="8191"/>
+  </hyperv>
+  ```
+  and this line
+  ```
+  <timer name="hypervclock" present="yes"/>
+  ```
+- Nvidia laptop gpu also see https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#%22Error_43:_Driver_failed_to_load%22_with_mobile_(Optimus/max-q)_nvidia_GPUs
 
