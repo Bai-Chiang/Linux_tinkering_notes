@@ -100,18 +100,7 @@ This setup is for headless host that does not have `X`/`wayland` installed.
   sudo strings /sys/firmware/acpi/tables/MSDM | tail -1
   ```
 
-- Nvidia laptop driver error code 43,
-  remove these lines in xml
+- Nvidia laptop driver error code 43, follow [this](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Video_card_driver_virtualisation_detection) guide to bypass virtual machine detection.
   ```
-  <hyperv>
-  <relaxed state="on"/>
-  <vapic state="on"/>
-  <spinlocks state="on" retries="8191"/>
-  </hyperv>
-  ```
-  also remove this line
-  ```
-  <timer name="hypervclock" present="yes"/>
-  ```
-- Nvidia laptop gpu also see https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#%22Error_43:_Driver_failed_to_load%22_with_mobile_(Optimus/max-q)_nvidia_GPUs
+- Nvidia laptop gpu may still have error code 43 due the driver wants to check battery status. Follow [this](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#%22Error_43:_Driver_failed_to_load%22_with_mobile_(Optimus/max-q)_nvidia_GPUs) guide to create a custom acpi table.
 
