@@ -10,7 +10,7 @@ virt-install \
     --os-variant name=archlinux \
     --cdrom /path/to/archlinux.iso \
     --disk path=/var/lib/libvirt/images/vm_name.qcow2,size=16,bus=virtio \
-    --network network=default,model.type=virtio \
+    --network bridge=br0,model.type=virtio \
     --graphics none \
     --autoconsole text \
     --serial pty \
