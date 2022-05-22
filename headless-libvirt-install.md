@@ -14,7 +14,8 @@ virt-install \
     --graphics none \
     --autoconsole text \
     --serial pty \
-    --boot firmware=efi
+    --boot firmware=efi \
+    --autostart
 ```
 
 At the systemd-boot boot loader selection screen press `e` enter edit mode.
