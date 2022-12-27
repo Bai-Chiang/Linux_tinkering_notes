@@ -71,6 +71,8 @@ I tested on my Steam Deck but it should also works on all Linux distrobution.
 
 ## Apply `vpatch`
 
+__vpatch only works for the executable file from original disk. You need an `.exe` from original disk, not the steam version.__
+
 1. Download the patch from [touhouwiki](https://en.touhouwiki.net/wiki/Game_Tools_and_Modifications#Vsync_Patches), and extrat it to `/home/deck/Touhou/VsyncPatch/`.
 
 1. Go to `vpatch_rev7` directory, then copy `vpatch.exe`, `vpatch.ini` and `vpatch_th10.dll` to game directory `/home/deck/.local/share/Steam/steamapps/common/th10/`.
@@ -84,5 +86,10 @@ I tested on my Steam Deck but it should also works on all Linux distrobution.
 1. Make a backup of original Steam executable. Copy `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` to `/home/deck/Touhou/th10.exe.steam`.
    This is for convenience, you can always recover it using Steam by verifing local data.
 
-1. vpatch only works for the executable file from original disk. We need to convert the steam version to original version.
-   Download `th10.bdf` file from [here](https://github.com/MisterMonstr/2hu_steam-exe_to_disc-exe).
+1. Replace the `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` with the one you obtained leaglly from original disk.
+
+1. Change the Steam game launch option to 
+   ```
+   /home/deck/Touhou/thcrap-steam-proton-wrapper/thcrap_proton -v -e "%command%"
+   ```
+   the `-v` flag let Steam runs `vpatch.exe`
