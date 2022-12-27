@@ -70,3 +70,19 @@ I tested on my Steam Deck but it should also works on all Linux distrobution.
    It's recommended you uncheck the _Keep the updater running in background_ in `thcrap` setting, so Steam could properly shutdown the game when you quit.
 
 ## Apply `vpatch`
+
+1. Download the patch from [touhouwiki](https://en.touhouwiki.net/wiki/Game_Tools_and_Modifications#Vsync_Patches), and extrat it to `/home/deck/Touhou/VsyncPatch/`.
+
+1. Go to `vpatch_rev7` directory, then copy `vpatch.exe`, `vpatch.ini` and `vpatch_th10.dll` to game directory `/home/deck/.local/share/Steam/steamapps/common/th10/`.
+
+1. Open `vpatch.ini` in the game directory with your favourate text editor. We are going to change windows size.
+   For TH10 the default window is very small.
+   If using 4K display, set `enabled = 1`, `Width = 2667` and `Height = 2000`.
+   If using 1080p display set `Width = 1280` and `Height = 960`.
+   Based on [this](https://steamcommunity.com/sharedfiles/filedetails/?id=2196860604) tutorial.
+
+1. Make a backup of original Steam executable. Copy `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` to `/home/deck/Touhou/th10.exe.steam`.
+   This is for convenience, you can always recover it using Steam by verifing local data.
+
+1. vpatch only works for the executable file from original disk. We need to convert the steam version to original version.
+   Download `th10.bdf` file from [here](https://github.com/MisterMonstr/2hu_steam-exe_to_disc-exe).
