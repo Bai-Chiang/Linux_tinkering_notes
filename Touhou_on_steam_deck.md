@@ -86,7 +86,7 @@ __vpatch only works for the executable file from original disk. You need an `.ex
 1. Make a backup of original Steam executable. Copy `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` to `/home/deck/Touhou/th10.exe.steam`.
    This is for convenience, you can always recover it using Steam by verifing local data.
 
-1. Replace the `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` with the one you obtained leaglly from original disk.
+1. Replace the `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` with the one you leaglly obtained from original disk.
 
 1. Change the Steam game launch option to 
    ```
