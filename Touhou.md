@@ -6,7 +6,7 @@ Based on tutorials from
 - https://github.com/tactikauan/thcrap-steam-proton-wrapper
 
 I will use [TH10 Mountain of Faith](https://store.steampowered.com/app/1100140/Touhou_Fuujinroku__Mountain_of_Faith/) as an example in the followiing steps.
-I tested on my Steam Deck but it should also works on all Linux distrobution.
+I tested on my Steam Deck and Arch Linux with Flatpak version of Steam.
 
 ## Apply `thcrap`
 
@@ -16,14 +16,15 @@ I tested on my Steam Deck but it should also works on all Linux distrobution.
 1. Download `thcrap` from [here](https://www.thpatch.net/wiki/Touhou_Patch_Center:Download), and extract to a directory.
    I put `thcrap` and all other patches/scripts under `~/Touhou` directory, so it would be `/home/deck/Touhou/thcrap/`.
 
-1. Locate your Steam game directory. For Steam Deck, it's under `/home/deck/.local/share/Steam/steamapps/common/` if you installed the game on internal SSD,
+1. Locate your Steam game directory.
+   - For Steam Deck, it's under `/home/deck/.local/share/Steam/steamapps/common/` if you installed the game on internal SSD,
    or `/run/media/mmcblk0p1/steamapps/common/` if installed on micro SD card.
-   For general Linux distributiions, if Steam is install as a system package, game directory is `/home/$USERNAME/.local/share/Steam/steamapps/common/`.
-   If you installed Flatpak version of Steam, it's `/home/$USERNAME/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/`.
-   For each Touhou game you would find the `.exe` file under its directory.
-   In my case, TH10 on Steam Deck internal SSD, it's `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe`.
+   - For general Linux distributiions, if Steam is install as a system package, game directory is `/home/$USERNAME/.local/share/Steam/steamapps/common/`.
+   - If you installed Flatpak version of Steam, it's `/home/$USERNAME/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/`.
+   For each Touhou game you would find the `th*.exe` file under its directory.
+   I will use `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` in the following tutorial.
    
-1. Go to the `thcrap` folder and crate a `config` folder. Inside of the `config` folder cate a `games.js` file with content
+1. Go to the `thcrap` folder `~/Touhou/thcrap` and crate a `config` folder. Inside of the `config` folder cate a `games.js` file with content
    ```
    {
      "th10": "Z:/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe",
@@ -39,14 +40,17 @@ I tested on my Steam Deck but it should also works on all Linux distrobution.
 1. Run `thcrap.exe` from Steam, if it doesn't run, go to the game setting (click setting bottom --> Properties --> Compatibility) check _Force the use of specific Steam Play compatibility tool_, and select specific proton version.
    The `proton 7.0-5` works for me.
    
-   If using Flatpak version of Steam, running `thcrap.exe` from Steam cannot not update repo. I used [Bottles](https://usebottles.com/).
-   Create a new bottle with default gaming profile. Then go to settings disable dxvk.
-   Next under the dependencies menu install .NET framework 4.6.1.
-   Then Add `thcrap.exe` to shortcuts, and run it.
+   If using Flatpak version of Steam, running `thcrap.exe` from Steam cannot not update repo.
+   So I used [Bottles](https://usebottles.com/) instead.
+   Create a new bottle with default gaming profile.
+   Then go to settings disable dxvk.
+   Next, under the dependencies menu install .NET framework 4.6.1.
+   Add `thcrap.exe` to shortcuts, and run it.
    
 1. During he installation you choose your language patch. I use default english pack in this example.
    Then it will ask you game location, since we already added the game in `games.js`, just click next.
-   Next, it asks for shortcuts. We don't create any shortcuts here, since we will add the patch to Steam launch command.
+   Next, it asks for shortcuts.
+   We don't create any shortcuts here, since we will add the patch to Steam launch command.
    
 1. Download `thcrap_proton` wrapper script from [here](https://raw.githubusercontent.com/tactikauan/thcrap-steam-proton-wrapper/master/thcrap_proton).
    You can find its explanation at the [github repo](https://github.com/tactikauan/thcrap-steam-proton-wrapper).
@@ -80,15 +84,17 @@ __vpatch only works for the executable file from original disk. You need an `.ex
 
 1. Download the patch from [touhouwiki](https://en.touhouwiki.net/wiki/Game_Tools_and_Modifications#Vsync_Patches), and extrat it to `/home/deck/Touhou/VsyncPatch/`.
 
-1. Go to `vpatch_rev7` directory, then copy `vpatch.exe`, `vpatch.ini` and `vpatch_th10.dll` to game directory `/home/deck/.local/share/Steam/steamapps/common/th10/`.
+1. Go to `vpatch_rev7` directory, then copy `vpatch.exe`, `vpatch.ini` and `vpatch_th10.dll` to the game directory `/home/deck/.local/share/Steam/steamapps/common/th10/`.
 
-1. Open `vpatch.ini` in the game directory with your favourate text editor. We are going to change windows size.
+1. Open `vpatch.ini` in the game directory with your favourate text editor.
+   We are going to change windows size.
    For TH10 the default window is very small.
    If using 4K display, set `enabled = 1`, `Width = 2667` and `Height = 2000`.
    If using 1080p display set `Width = 1280` and `Height = 960`.
    Based on [this](https://steamcommunity.com/sharedfiles/filedetails/?id=2196860604) tutorial.
 
-1. Make a backup of original Steam executable. Copy `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` to `/home/deck/Touhou/th10.exe.steam`.
+1. Make a backup of original Steam executable.
+   Copy `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` to `/home/deck/Touhou/th10.exe.steam`.
    This is for convenience, you can always recover it using Steam by verifing local data.
 
 1. Replace the `/home/deck/.local/share/Steam/steamapps/common/th10/th10.exe` with the one you leaglly obtained from original disk.
