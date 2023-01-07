@@ -39,6 +39,11 @@ I tested on my Steam Deck but it should also works on all Linux distrobution.
 1. Run `thcrap.exe` from Steam, if it doesn't run, go to the game setting (click setting bottom --> Properties --> Compatibility) check _Force the use of specific Steam Play compatibility tool_, and select specific proton version.
    The `proton 7.0-5` works for me.
    
+   If using Flatpak version of Steam, running `thcrap.exe` from Steam cannot not update repo. I used [Bottles](https://usebottles.com/).
+   Create a new bottle with default gaming profile. Then go to settings disable dxvk.
+   Next under the dependencies menu install .NET framework 4.6.1.
+   Then Add `thcrap.exe` to shortcuts, and run it.
+   
 1. During he installation you choose your language patch. I use default english pack in this example.
    Then it will ask you game location, since we already added the game in `games.js`, just click next.
    Next, it asks for shortcuts. We don't create any shortcuts here, since we will add the patch to Steam launch command.
