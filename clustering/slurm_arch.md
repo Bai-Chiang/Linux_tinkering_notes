@@ -6,11 +6,10 @@
    ```
 1. Make sure all nodes have the same munge key `/etc/munge/munge.key`.
    You can simply copy the key from one node to all other nodes.
-   To generate a new key run
+   To force generate a new key with 4096 bits run
    ```
-   sudo -u munge mungekey --verbose
+   sudo -u munge mungekey --force --bits 4096 --verbose
    ```
-   You need to remove old key first.
 
 1. Start and enable `munge.service` on all nodes.
    ```
