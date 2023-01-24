@@ -1,0 +1,591 @@
+This is my personal notes of a secure Arch Linux installation.
+The [[Installation guide|official installation guide]] only covers basics.
+I want to have a installation that enables [[dm-crypt/Encrypting an entire system#LUKS on a partition|encrypted root partition]], [[Unified Extensible Firmware Interface/Secure Boot|secure boot]] with my own key and [[unified kernel image]].
+It took me quite some time go through these seperated wiki pages to get every pieces working together.
+Here I documented all of these steps in one place to save some efforts for my future installations, also provides a guidance for someone looking for a similar setup.
+
+Reader should already familiar the [[Installation guide|official installation guide]].
+Also I will not give detailed explanation for each step, instead I will provide a link to corresponding wiki page for those interested.
+
+Feature list:
+* [[dm-crypt/Device encryption|Encrypted]] root and swap partition.
+* [[Unified Extensible Firmware Interface/Secure Boot|Secure boot]] with your own keys.
+* [[Unified kernel image]] boot directly from UEFI.
+* [[Btrfs]] as root filesystem.
+* Using [[snapper]] automatically create/cleanup snapshots based on [[snapper#Automatic timeline snapshots|timeline]] and [[snapper#Wrapping pacman transactions in snapshots|pacman transactions]].
+* [[systemd-homed]] encrypts your home directory when system is suspended.
+* [[SELinux]] for adventurous users ([[Unofficial user repositories|unofficial repository]], see [[SELinux#Current status in Arch Linux|current status]] and [https://github.com/archlinuxhardened/selinux/issues issues])
+
+{{Note|There are lots of commands. I would suggest SSH into the target machine, and copy paste commands. The latest Arch live ISO enabled {{ic|sshd.service}} by default. You only need to change root password to be able to login remotely.}}
+
+== Pre-installation ==
+
+=== [[Unified Extensible Firmware Interface/Secure Boot#Checking Secure Boot status|Put the firmware in "Setup Mode"]] ===
+This step depends on BIOS implementation.
+First you need to enable UEFI boot only (no legacy boot).
+Then change Secure Boot option to Setup Mode.
+Usually it is under Secure Boot section, the exact name may be different, sometimes called Custom Mode.
+To check the Secure Boot is set to the Setup Mode, boot into the live iso.
+Then run
+{{hc|# bootctl status {{!}} grep "Secure Boot"|
+...
+Secure Boot: disabled (setup)
+...
+}}
+It should have {{ic|(setup)}}.
+
+=== UEFI Boot manager {{man|8|efibootmgr}} ===
+Display current boot settings
+{{hc|1=# efibootmgr|2=
+BootCurrent: 0004
+BootNext: 0003
+BootOrder: 0004,0000,0001,0002,0003
+Timeout: 30 seconds
+Boot0000* Diskette Drive(device:0)
+Boot0001* CD-ROM Drive(device:FF)
+Boot0002* Hard Drive(Device:80)/HD(Part1,Sig00112233)
+Boot0003* PXE Boot: MAC(00D0B7C15D91)
+Boot0004* Linux
+}}
+Delete unused boot options. For example
+ # efibootmgr -b 0004 -B
+will delete boot entry 0004.
+
+=== [[Installation guide#Set the console keyboard layout|Set the console keyboard layout]] ===
+ # loadkeys us
+
+=== [[Installation guide#Verify the boot mode|Check UEFI mode]] ===
+If booted as UFEI mode
+ # ls /sys/firmware/efi/efivars
+should should print the directory without error.
+
+=== [[Installation guide#Connect to the internet|Check internet connection]] ===
+ # ping archlinux.org
+Recommend using wired connection during installation.
+Use a USB to Ethernet dongle if necessary.
+
+=== [[Installation guide#Update the system clock|Update the system clock]] ===
+ # timedatectl status
+
+=== [[fdisk#Create a partition table and partitions|Partition the disks]] ===
+Use [[fdisk]] create three partitions:
+{{Warning| [[Parted]] only aligns partition start, but not the size/end. This is not enough for dm-crypt/LUKS, see [[Parted#Alignment]] and [[Advanced Format#Partition alignment]].}}
+* {{ic|/dev/sdX1}} 512MiB [[EFI system partition]]. It will not be encrypted.
+* {{ic|/dev/sdX2}} root partition. Setup [[dm-crypt/Device encryption|LUKS2]] encryption later.
+* {{ic|/dev/sdX3}} swap partition. Setup [[dm-crypt/Swap encryption|swap encryption]] later.
+
+=== [[dm-crypt/Device encryption|Setup encrypted root partition]] ===
+Encrypt the device with [[dm-crypt/Device encryption#Encryption options for LUKS mode|LUKS2 mode]]
+ # cryptsetup --type luks2 --verify-passphrase --sector-size 4096 --verbose luksFormat /dev/sdX2
+SSD usually report their sector size as 512 bytes, even though they use larger sector size.
+So add {{ic|--sector-size 4096}} force create a LUKS2 container with 4K sector size.
+If the sector size is wrong {{ic|cryptsetup}} will abort with an error.
+To re-encrypt with correct sector size see [[Advanced Format#dm-crypt]].
+
+[[dm-crypt/Device encryption#Unlocking/Mapping LUKS partitions with the device mapper|Unlock]] the LUKS2 container
+ # cryptsetup open /dev/sdX2 cryptroot
+It will map the encrypted container to new device {{ic|/dev/mapper/cryptroot}}.
+
+=== [[Installation guide#Format the partitions|Format the partitions]] ===
+* EFI partition {{bc|# mkfs.fat -F 32 /dev/sdX1}}
+* Root partition {{bc|# mkfs.btrfs /dev/mapper/cryptroot}}
+* Swap partition {{bc|# mkswap /dev/sdX3}} [[dm-crypt/Swap encryption|swap encryption]] will be configured after {{ic|arch-bootstrap}}.
+
+=== [[Btrfs#Creating a subvolume|Create Btrfs subvolumes]] ===
+{{bc|
+# mount /dev/mapper/cryptroot /mnt
+
+# btrfs subvolume create /mnt/@
+# btrfs subvolume create /mnt/@home
+# btrfs subvolume create /mnt/@snapshots
+# btrfs subvolume create /mnt/@var_log
+# btrfs subvolume create /mnt/@pacman_pkgs
+
+# mkdir /mnt/@/home
+# mkdir /mnt/@/.snapshots
+# mkdir /mnt/@/efi
+# mkdir -p /mnt/@/var/log
+# mkdir -p /mnt/@/var/cache/pacman/pkg
+
+# umount -R /mnt
+}}
+Following [[Snapper#Suggested filesystem layout]].
+
+=== [[Installation guide#Mount the file systems| Mount all file systems]] ===
+{{bc|1=
+# mount -o ssd,noatime,compress=zstd:1,space_cache=v2,autodefrag,subvol=@ /dev/mapper/cryptroot /mnt
+# mount -o ssd,noatime,compress=zstd:1,space_cache=v2,autodefrag,subvol=@home /dev/mapper/cryptroot /mnt/home
+# mount -o ssd,noatime,compress=zstd:1,space_cache=v2,autodefrag,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots
+# mount -o ssd,noatime,compress=zstd:1,space_cache=v2,autodefrag,subvol=@var_log /dev/mapper/cryptroot /mnt/var/log
+# mount -o ssd,noatime,compress=zstd:1,space_cache=v2,autodefrag,subvol=@pacman_pkgs /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg
+
+# mount /dev/sdX1 /mnt/efi
+
+# swapon /dev/sdX3
+}}
+Check {{man|5|btrfs|MOUNT OPTIONS}} for the explanations.
+Here I assume the root partition is on a SSD.
+If you are still using spinning rust for your boot drive, change mount option {{ic|ssd}} to {{ic|nossd}}.
+
+
+== Installation ==
+
+=== [[SELinux#Via binary package on GitHub|Add SELinux repository (optional)]] ===
+{{Warning|[[Unofficial user repositories|Unofficial repository]] use at your own risk.}}
+Enable [[Unofficial user repositories#selinux]] by adding these lines to the end of {{ic|/etc/pacman.conf}}
+{{bc|1=<nowiki>
+[selinux]
+Server = https://github.com/archlinuxhardened/selinux/releases/download/ArchLinux-SELinux
+SigLevel = PackageOptional
+</nowiki>}}
+
+=== [[Installation guide#Install essential packages|Install essential packages]] ===
+* Without SELinux: {{bc|1=
+# pacstrap -K /mnt base base-devel linux linux-firmware man-db vim dosfstools e2fsprogs btrfs-progs ''cpu_manufacturer-ucode''
+}}
+* With SELinux: replace {{ic|base}} and {{ic|base-devel}} with {{ic|base-selinux}} and {{ic|base-devel-selinux}}. Also add {{Pkg|archlinux-keyring}} to the list:{{bc|1=
+# pacstrap -K /mnt base-selinux base-devel-selinux linux linux-firmware man-db vim dosfstools e2fsprogs btrfs-progs archlinux-keyring ''cpu_manufacturer-ucode''
+}}
+: The {{AUR|base-selinux}} depends {{AUR|selinux-refpolicy-arch}}, no need to install extra policy.
+Replace {{ic|''cpu_manufacturer-ucode''}} with {{ic|amd-ucode}} or {{ic|intel-ucode}} depends on the CPU manufacturer.
+
+== Configure the system ==
+=== [[Installation guide#Fstab|Fstab]] ===
+Generate an [[fstab]]
+ # genfstab -U /mnt >> /mnt/etc/fstab
+Remove all {{ic|1=subvolid=}} options in fstab{{hc|1=/mnt/etc/fstab|2=
+# <file system>    <dir>   <type>    <options>    <dump> <pass>
+# /dev/mapper/cryptroot
+UUID=xxxx  /  btrfs  rw,noatime,compress=zstd:1,ssd,space_cache=v2,autodefrag,'''<s>subvolid=256,</s>'''subvol=/@  0 0
+
+# /dev/sdX1
+UUID=xxxx  /efi  vfat ...
+
+# /dev/mapper/cryptroot
+UUID=xxxx  /home  btrfs  rw,noatime,compress=zstd:1,ssd,space_cache=v2,autodefrag,'''<s>subvolid=257,</s>'''subvol=/@home  0 0
+
+...
+
+# /dev/sdX3
+UUID=xxxx  none  swap  defaults  0 0
+}}
+
+You can run this command remove all {{ic|1=subvolid}} options
+ # sed -i 's/subvolid=[0-9]*,//g' /mnt/etc/fstab
+
+This is helpful because you do not need to edit fstab file after [[snapper#Restoring / to its previous snapshot|restoring root partition to its previous snapshot]].
+
+=== [[Installation guide#Chroot|Chroot]] ===
+ # arch-chroot /mnt
+ # export PS1="(chroot) ${PS1}"
+
+=== [[Installation guide#Time zone|Time zone]] ===
+ (chroot) # ln -sf /usr/share/zoneinfo/''Region/City'' /etc/localtime
+ (chroot) # hwclock --systohc
+
+=== [[Installation guide#Localization|Localization]] ===
+Uncomment {{ic|en_US.UTF-8 UTF-8}} in {{ic|/etc/locale.gen}}, then
+ (chroot) # locale-gen
+Create {{ic|/etc/locale.conf}} and {{ic|/etc/vconsole.conf}}
+ (chroot) # echo "LANG=en_US.UTF-8" > /etc/locale.conf
+ (chroot) # echo "KEYMAP=us" > /etc/vconsole.conf
+
+=== [[Installation guide#Network configuration|Network configuration]] ===
+Hostname
+ (chroot) # echo archlinux > /etc/hostname
+Choose '''only one''' [[Network configuration#Network managers|network manager]].
+* [[systemd-networkd]] is my preferred choice for devices that only need wired connection. [[iwd]] works well for WPA-Personal WiFi, but not easy to configure for the WPA-Enterprise WiFi.
+* [[NetworkManager]] with [[wpa_supplicant]] for devices need wireless connection.
+
+==== [[systemd-networkd]] ====
+Create [[systemd-networkd#Configuration examples|configuration]] file
+{{hc|1=/etc/systemd/network/20-ethernet.network|2=
+[Match]
+Name=en*
+Name=eth*
+
+[Network]
+DHCP=yes
+IPv6PrivacyExtensions=yes
+}}
+[[enable|Enable]] {{ic|systemd-resolved.service}} and {{ic|systemd-networkd.service}}.
+
+==== [[NetworkManager]] ====
+[[install|Install]] {{Pkg|networkmanager}} and {{Pkg|wpa_supplicant}}.
+Then [[enable]] {{ic|systemd-resolved.service}}, {{ic|NetworkManager.service}} and {{ic|wpa_supplicant.service}}.
+
+=== [[dm-crypt/Encrypting an entire system#LUKS on a partition|Disk encryption]] ===
+==== [[Dm-crypt/System configuration#mkinitcpio|Configure mkinitcpio]] ====
+A configuration with systemd-based initramfs using {{ic|sd-encrypt}} would looks similar to 
+{{hc|1=/etc/mkinitcpio.conf|2=
+...
+HOOKS=(base '''systemd keyboard''' autodetect modconf kms '''sd-vconsole''' block '''sd-encrypt''' filesystems fsck)
+...
+}}
+
+==== [[dm-crypt/System configuration#Using systemd-cryptsetup-generator|Create /etc/crypttab.initramfs]] ====
+{{hc|1=/etc/crypttab.initramfs|2=
+cryptroot  UUID=''ROOT_UUID''  -  password-echo=no,x-systemd.device-timeout=0,timeout=0,no-read-workqueue,no-write-workqueue,discard
+}}
+You can get ''ROOT_UUID'' with command {{ic|lsblk -dno UUID /dev/sdX2}}. The {{ic|no-read-workqueue,no-write-workqueue,discard}} options at the end is for SSD, see [[dm-crypt/Specialties#Disable workqueue for increased solid state drive (SSD) performance]] and [[dm-crypt/Specialties#Discard/TRIM support for solid state drives (SSD)]].
+==== [[dm-crypt/Swap encryption|Swap encryption]] ====
+To use UUID instead of {{ic|/dev/sdX3}} in the {{ic|/etc/crypttab}}, we need to create a small 1MiB sized filesystem at {{ic|/dev/sdX3}}, see [[dm-crypt/Swap encryption#UUID and LABEL]].
+First deactivate swap partition
+ (chroot) # swapoff /dev/sdX3
+Then create a 1MiB ext2 filesystem with label ''cryptswap''
+ (chroot) # mkfs.ext2 -F -F -L cryptswap /dev/sdX3 1M
+Add {{ic|/etc/crypttab}} entry
+{{hc|1=/etc/crypttab|2=
+# <name>   <device>         <password>   <options>
+cryptswap  UUID=''SWAP_UUID''  /dev/urandom  swap,offset=2048
+}}
+Get ''SWAP_UUID'' with command {{ic|lsblk -dno UUID /dev/sdX3}}.
+The option {{ic|offset}} is the start offset in 512-byte sectors. So 2048 of 512 bytes is 1MiB.
+
+Edit the swap entry in {{ic|/etc/fstab}}, change {{ic|1=UUID=xxxx}} to {{ic|/dev/mapper/cryptswap}}
+{{hc|1=/etc/fstab|2=
+# <filesystem>    <dir>  <type>  <options>  <dump>  <pass>
+/dev/mapper/swap  none   swap    defaults   0       0
+}}
+
+=== [[Unified kernel image]] ===
+==== [[Unified kernel image#Kernel command line|Kernel command line]] ====
+Create {{ic|/etc/kernel/cmdline}} file, which will contains [[kernel parameters]] for the [[unified kernel image]].
+{{hc|1=/etc/kernel/cmdline|2=
+root=/dev/mapper/cryptroot rootfstype=btrfs rootflags=subvol=/@ rw modprobe.blacklist=pcspkr
+}}
+{{ic|1=modprobe.blacklist=pcspkr}} disable the PC speaker (or beeper) globally, see [[PC speaker#Disabling the PC speaker]].
+
+If SELinux enabled also add {{ic|1=lsm=landlock,lockdown,yama,integrity,selinux,bpf}} to the end.
+
+==== [[Unified kernel image#.preset file|Modify .preset file]] ====
+Edit all {{ic|.preset}} files for the kernels you installed, eg. {{ic|linux.preset}}, {{ic|linux-zen.preset}}, {{ic|linux-lts.preset}} etc.
+* Add line {{ic|1=ALL_microcode=(/boot/*-ucode.img)}}
+* Add {{ic|1=default_uki=}} and {{ic|1=fallback_uki=}}
+* Optionally, comment out {{ic|1=default_image=}} and {{ic|1=fallback_imag=}}
+* Optionally, add Arch splash screen by appending {{ic|--splash}} to {{ic|1=default_options=}}
+{{hc|1=/etc/mkinitcpio.d/linux.preset|2=
+# mkinitcpio preset file for the 'linux' package
+
+ALL_config="/etc/mkinitcpio.conf"
+ALL_kver="/boot/vmlinuz-linux"
+ALL_microcode=(/boot/*-ucode.img)
+
+PRESETS=('default' 'fallback')
+
+#default_image="/boot/initramfs-linux.img"
+default_uki="/boot/EFI/Linux/Archlinux-linux.efi"
+default_options="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
+
+#fallback_image="/boot/initramfs-linux-fallback.img"
+fallback_uki="/boot/Linux/archlinux-linux-fallback.efi"
+fallback_options="-S autodetect"
+}}
+
+If installed {{Pkg|linux-zen}} kernel then {{ic|linux-zen.preset}} would looks like
+{{hc|1=/etc/mkinitcpio.d/linux-zen.preset|2=
+# mkinitcpio preset file for the 'linux-zen' package
+
+ALL_config="/etc/mkinitcpio.conf"
+ALL_kver="/boot/vmlinuz-linux-zen"
+ALL_microcode=(/boot/*-ucode.img)
+
+PRESETS=('default' 'fallback')
+
+#default_image="/boot/initramfs-linux-zen.img"
+default_uki="/boot/EFI/Linux/Archlinux-linux-zen.efi"
+default_options="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
+
+#fallback_image="/boot/initramfs-linux-zen-fallback.img"
+fallback_uki="/boot/EFI/Linux/archlinux-linux-zen-fallback.efi"
+fallback_options="-S autodetect"
+}}
+The unified kernel image {{ic|archlinux-linux.efi}} is not being signed.
+Later we will sign it with our own key and put the signed version in {{ic|/efi}}.
+
+Finally [[regenerate the initramfs]]
+ (chroot) # mkinitcpio -P
+and optionally remove any leftover {{ic|initramfs-*.img}} from {{ic|/boot}} or {{ic|/efi}}.
+
+=== [[Unified Extensible Firmware Interface/Secure Boot#Implementing Secure Boot|Secure boot]] ===
+[[Install]] {{Pkg|efitools}} and {{Pkg|sbsigntools}}. Then
+ (chroot) # mkdir /etc/efi-keys
+ (chroot) # cd /etc/efi-keys
+
+==== [[Unified Extensible Firmware Interface/Secure Boot#Creating keys|Creating keys]] ====
+* Create GUID for owner identification
+ (chroot) # uuidgen --random > GUID.txt
+
+* Platform key
+ (chroot) # openssl req -newkey rsa:4096 -nodes -keyout PK.key -new -x509 -sha256 -days ''3650'' -subj "/CN=''my Platform Key''/" -out PK.crt
+ (chroot) # openssl x509 -outform DER -in PK.crt -out PK.cer
+ (chroot) # cert-to-efi-sig-list -g "$(< GUID.txt)" PK.crt PK.esl
+ (chroot) # sign-efi-sig-list -g "$(< GUID.txt)" -k PK.key -c PK.crt PK PK.esl PK.auth
+
+* Key Exchange Key:
+ (chroot) # openssl req -newkey rsa:4096 -nodes -keyout KEK.key -new -x509 -sha256 -days ''3650'' -subj "/CN=''my Key Exchange Key''/" -out KEK.crt
+ (chroot) # openssl x509 -outform DER -in KEK.crt -out KEK.cer
+ (chroot) # cert-to-efi-sig-list -g "$(< GUID.txt)" KEK.crt KEK.esl
+ (chroot) # sign-efi-sig-list -g "$(< GUID.txt)" -k PK.key -c PK.crt KEK KEK.esl KEK.auth
+
+* Signature Database key:
+ (chroot) # openssl req -newkey rsa:4096 -nodes -keyout db.key -new -x509 -sha256 -days ''3650'' -subj "/CN=''my Signature Database key''/" -out db.crt
+ (chroot) # openssl x509 -outform DER -in db.crt -out db.cer
+ (chroot) # cert-to-efi-sig-list -g "$(< GUID.txt)" db.crt db.esl
+ (chroot) # sign-efi-sig-list -g "$(< GUID.txt)" -k KEK.key -c KEK.crt db db.esl db.auth
+
+==== [[Unified Extensible Firmware Interface/Secure Boot#Enrolling keys in firmware|Enrolling keys in firmware]] ====
+ (chroot) # mkdir -p /etc/secureboot/keys/{db,dbx,KEK,PK}
+ (chroot) # cp /etc/efi-keys/PK.auth /etc/secureboot/keys/PK/
+ (chroot) # cp /etc/efi-keys/KEK.auth /etc/secureboot/keys/KEK/
+ (chroot) # cp /etc/efi-keys/db.auth /etc/secureboot/keys/db/
+ (chroot) # chattr -i /sys/firmware/efi/efivars/{PK,KEK,db}*
+ (chroot) # sbkeysync --verbose
+ (chroot) # efi-updatevar -f /etc/secureboot/keys/PK/PK.auth PK
+ (chroot) # sbkeysync --verbose --pk
+
+==== [[Unified Extensible Firmware Interface/Secure Boot#Microsoft Windows|Microsoft 3rd Party UEFI CA certificate]] ====
+{{Warning|Some plug-in cards have firmware that's signed by Microsoft's keys. Such a card will not work (at least, not from the firmware) if you enable Secure Boot without the matching public key. (The card should still work once you've booted an OS. The biggest concern is for cards that must work in a pre-boot environment, such as a video card or for PXE-booting a network card.) You can add Microsoft's keys back to the environment to make such cards work, but this eliminates the advantages of not having those keys, if that's a significant factor for you.[https://www.rodsbooks.com/efi-bootloaders/controlling-sb.html] Without Microsoft 3rd Party UEFI CA certificate these devices would not work before OS booted. Which could be a problem if your CPU does not have an integrated graphics card. If the discrete GPU does not work before OS is booted, you won't be able to access BIOS. You can skip this section, if you do not have such devices.}}
+Download Microsoft 3rd Party UEFI CA certificate
+ (chroot) # curl -O https://www.microsoft.com/pkiops/certs/MicCorUEFCA2011_2011-06-27.crt
+ (chroot) # sbsiglist --owner 77fa9abd-0359-4d32-bd60-28f4e78f784b --type x509 --output MS_UEFI_db.esl MicCorUEFCA2011_2011-06-27.crt
+ (chroot) sign-efi-sig-list -a -g 77fa9abd-0359-4d32-bd60-28f4e78f784b -k KEK.key -c KEK.crt db MS_UEFI_db.esl add_MS_UEFI_db.auth
+Enroll MS UEFI key
+ (chroot) # cp /etc/efi-keys/add_MS_UEFI_db.auth /etc/secureboot/keys/db/
+ (chroot) # chattr -i /sys/firmware/efi/efivars/{PK,KEK,db}*
+ (chroot) # sbkeysync --verbose
+
+==== Sign the unified kernel image with pacman hook ====
+Create
+{{hc|1=/etc/pacman.d/hooks/99-secureboot.hook|2=
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = usr/lib/modules/*/vmlinuz
+Target = usr/lib/initcpio/*
+
+[Action]
+Description = Signing Kernel for SecureBoot
+When = PostTransaction
+Exec = /usr/bin/bash -c 'for ENTRY in /boot/EFI/Linux/*.efi ; do /usr/bin/sbsign --key /etc/efi-keys/db.key --cert /etc/efi-keys/db.crt --output "/efi/EFI/Linux/${ENTRY##*/}" "/boot/EFI/Linux/${ENTRY##*/}" ; done'
+Depends = sbsigntools
+}}
+
+Create directory
+ (chroot) # mkdir -p /efi/EFI/Linux
+Then reinstall {{Pkg|systemd}} should trigger this pacman hook and sign the unified kernel image.
+ (chroot) # pacman --noconfirm -S systemd
+If SELinux is enabled reinstall {{AUR|systemd-selinux}} instead
+ (chroot) # pacman --noconfirm -S systemd-selinux
+
+=== [[Unified kernel image#Directly from UEFI|boot Directly from UEFI]] ===
+[[Install]] {{Pkg|efibootmgr}}.
+
+For {{Pkg|linux}} kernel
+ (chroot) # efibootmgr --create --disk /dev/sdX --part 1 --label "ArchLinux-linux" --loader "EFI\\Linux\\ArchLinux-linux.efi"
+ (chroot) # efibootmgr --create --disk /dev/sdX --part 1 --label "ArchLinux-linux-fallback" --loader "EFI\\Linux\\ArchLinux-linux-fallback.efi"
+{{ic|--disk}} is the disk containing boot loader do not include part number, it is {{ic|/dev/sdX}} '''not''' {{ic|/dev/sdX1}}.
+The {{ic|--part}}} specify the partition number.
+If the EFI partition is {{ic|/dev/sdX2}} then it is {{ic|--disk /dev/sdX --part 2}}.
+
+If you install {{Pkg|linux-zen}} kernel also need to add them to boot entry, for example
+ (chroot) # efibootmgr --create --disk /dev/sdX --part 1 --label "ArchLinux-linux-zen" --loader "EFI\\Linux\\ArchLinux-linux-zen.efi"
+ (chroot) # efibootmgr --create --disk /dev/sdX --part 1 --label "ArchLinux-linux-zen-fallback" --loader "EFI\\Linux\\ArchLinux-linux-zen-fallback.efi"
+Change the boot order, for example I want first boot entry 0003 then 0004, then 0005, run
+ (chroot) # efibootmgr --bootorder 0003,0004,0005
+
+=== [[Installation guide#Root password|Set root password]] ===
+ (chroot) # passwd
+
+== [[Installation guide#Reboot|Reboot into BIOS]] ==
+ (chroot) # exit
+ # umount -R /mnt
+ # systemctl reboot --firmware-setup
+
+* Now you can enable Secure Boot (also called User Mode) in the BIOS. Some motherboard manufacture will automatically change to User Mode if you enrolled your own key.
+* Then set a BIOS password.
+* Now finger crossed and boot into your new system.
+
+== Post-installation ==
+=== [[SELinux#Post-installation steps]] ===
+Label your filesystem
+ # restorecon -r /
+ # systemctl reboot
+Check SELinux Status:
+ # sestatus
+It should be permissive mode.
+To temporary switch to enforcing mode
+ # echo 1 > /sys/fs/selinux/enforce
+Or edit {{ic|/etc/selinux/config}} to switch permanently.
+
+[[Enable]] {{ic|restorecond.service}} to maintain correct context.
+
+=== [[systemd-homed]] ===
+From [https://0pointer.net/blog/fitting-everything-together.html Lennart Poettering's blog]:
+:It (systemd-homed) also allows us to correct another major issue with traditional Linux systems: the way how data encryption works during system suspend. Traditionally on Linux the disk encryption credentials (e.g. LUKS passphrase) is kept in memory also when the system is suspended. This is a bad choice for security, since many (most?) of us probably never turn off their laptop but suspend it instead. But if the decryption key is always present in unencrypted form during the suspended time, then it could potentially be read from there by a sufficiently equipped attacker.
+
+In other words, my data is still safe even if I leave my laptop suspended in a hotel.
+In my humble opinion, systemd-homed does not provide much benefits for server or single user desktop use cases. Also it needs extra configuration if running SSH server, see [[systemd-homed#SSH remote unlocking]].
+
+If you want to add a user using systemd-homed keep reading this section, otherwise follow [[Users and groups#User management]].
+
+[[Start]] and [[enable]] {{ic|systemd-homed.service}}.
+
+ # homectl create ''tux'' --uid=1000 --member-of=wheel --shell=/bin/bash --storage=luks --fs-type=btrfs
+
+Will add user {{ic|tux}} with {{ic|1=UID=1000}} and a member of {{ic|wheel}} group.
+Its home directory is a encrypted LUKS volume, and the filesystem is btrfs.
+
+=== [[Sudo#Disable root login|Disable root login ]] ===
+ # passwd -d root
+ # passwd -l root
+
+=== [[systemd-timesyncd|Time servers]] ===
+{{hc|1=/etc/systemd/timesyncd.conf|2=
+[Time]
+NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org
+FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org
+}}
+Then [[start]] and [[enable]] {{ic|systemd-timesyncd.service}}
+
+=== [[Pacman#Enabling parallel downloads]] ===
+Uncomment {{ic|ParallelDownloads}} in {{ic|/etc/pacman.conf}}.
+
+=== [[reflector]] ===
+[[Install]] the {{Pkg|reflector}} package.
+
+{{hc|1=/etc/xdg/reflector/reflector.conf|2=
+--save /etc/pacman.d/mirrorlist
+--protocol https
+--country us
+--latest 5
+--sort age
+}}
+
+[[Enable]] {{ic|reflector.service}} and {{ic|reflector.timer}}.
+
+=== [[Pacman#Cleaning the package cache]] ===
+[[Install]] the {{Pkg|pacman-contrib}} package. [[Enable]] {{ic|paccache.timer}}.
+
+=== [[Solid state drive#Periodic TRIM]] ===
+[[Enable]] {{ic|fstrim.timer}}.
+
+=== [[makepkg#Building optimized binaries|Optimize AUR building]] ===
+Remove any {{ic|-march}} and {{ic|-mtune}} CFLAGS, then add {{ic|1=-march=native}} in {{ic|/etc/makepkg.conf}}.
+{{hc|1=/etc/makepkg.conf|2=
+CFLAGS="'''-march=native''' -O2 -pipe ..."
+}}
+Add {{ic|1=-C target-cpu=native}} to RUSTFLAGS:
+{{hc|1=/etc/makepkg.conf|2=
+RUSTFLAGS="-C opt-level=2 '''-C target-cpu=native'''"
+}}
+
+=== [[firewalld|firewall]] ===
+[[Install]] the {{Pkg|firewalld}} package. [[Start]] and [[enable]] {{ic|firewalld.service}}.
+
+=== [[Snapper]] ===
+I want to use [[systemd/Timers|systemd]] manage snapshots instead of [[cron]].
+Uncomment {{ic|NoExtract}} in {{ic|/etc/pacman.conf}}
+{{hc|1=/etc/pacman.conf|2=
+NoExtract = etc/cron.daily/snapper etc/cron.hourly/snapper
+}}
+
+[[Install]] the {{Pkg|snapper}} package.
+
+Follow [[Snapper#Configuration of snapper and mount point]] suggestion create configuration for {{ic|/}}.
+Unmount and remove existing {{ic|/.snapshots}}
+ # umount /.snapshots
+ # rm -r /.snapshots
+Create a new config for {{ic|/}} named {{ic|root}}.
+ # snapper -c root create-config /
+Delete the subvolume created by snapper, and recreate the directory
+ # btrfs subvolume delete /.snapshots
+ # mkdir /.snapshots
+Remount {{ic|@snapshots}} to {{ic|/.snapshots}} and set right permission.
+ # mount -a
+ # chmod -R 750 /.snapshots
+
+Create new config for {{ic|/home/tux}
+ # snapper -c ''home-tux'' create-config ''/home/tux''
+
+Edit {{ic|/etc/snapper/configs/root}} and {{ic|/etc/snapper/configs/''home-tux''}}
+{{bc|1=
+TIMELINE_CREATE="yes"
+TIMELINE_CLEANUP="yes"
+
+NUMBER_MIN_AGE="1800"
+NUMBER_LIMIT="10"
+NUMBER_LIMIT_IMPORTANT="10"
+
+TIMELINE_MIN_AGE="1800"
+TIMELINE_LIMIT_HOURLY="5"
+TIMELINE_LIMIT_DAILY="7"
+TIMELINE_LIMIT_WEEKLY="0"
+TIMELINE_LIMIT_MONTHLY="0"
+TIMELINE_LIMIT_YEARLY="0"
+}}
+[[Enable]] {{ic|snapper-timeline.timer}} and {{ic|snapper-cleanup.timer}}.
+
+[[Install]] the {{Pkg|snap-pac}} and {{Pkg|rsync}} packages to create snapshot on pacman transactions.
+Create [[pacman#Hooks|pacman hook]]
+{{hc|1=/etc/pacman.d/hooks/95-efibackup.hook|2=
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Path
+Target = usr/lib/modules/*/vmlinuz
+Target = usr/lib/initcpio/*
+
+[Action]
+Depends = rsync
+Description = Backing up /efi...
+When = PostTransaction
+Exec = /usr/bin/rsync -a --delete /efi /.efibackup
+}}
+
+To restore {{ic|/}}, see [[snapper#Restoring / to its previous snapshot]].
+
+=== Restore [[dotfiles]] from a Git bare repository ===
+{{Note|To setup a Git bare repository for the first time, see [https://www.atlassian.com/git/tutorials/dotfiles this]}}
+[[Install]] the {{Pkg|git}} package.
+
+Clone your dotfiles repository
+ $ git clone --bare ''dotfiles-repo-url'' $HOME/.dotfiles
+ $ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+Checkout the repository
+ $ dotfiles checkout
+It may show an error of conflicting files that already exist in your home directory would be overwritten.
+Since this is fresh installed system, we simply delete them.
+Or run this command then checkout again
+ $ dotfiles checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} rm {}
+ $ dotfiles checkout
+If using GitHub change the remote url to use SSH key
+{{hc|1=~/.dotfiles/config|2=
+...
+[remote "origin"]
+    url = git@github.com:''username''/dotfiles.git
+...
+}}
+
+[[Install]] the {{Pkg|openssh}} package or {{AUR|openssh-selinux}} if using SELinux. Generate new [[SSH keys#Ed25519]] pairs
+ $ ssh-keygen -t ed25519
+After installed [[General recommendations#Graphical user interface|Graphical user interface]] upload your new SSH key to GitHub.
+Now you can push to your Git repository with
+ $ dotfiles push
+
+=== [[Zsh]] ===
+[[Install]] the {{Pkg|zsh}}, {{Pkg|zsh-completions}}, {{Pkg|zsh-syntax-highlighting}}, {{Pkg|zsh-autosuggestions}} and {{Pkg|grml-zsh-config}} packages, which provides the same setup as the Arch ISO release.
+To have [[Zsh#Fish-like syntax highlighting and autosuggestions|Fish-like syntax highlighting and autosuggestions]], add these lines to your {{ic|.zshrc}}:
+ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+To make Zsh your [[Command-line shell#Changing|default shell]]
+ $ chsh -s /usr/bin/zsh
+or if you are using systemd-homed
+ # homectl update --shell=/usr/bin/zsh ''tux''
+
+=== [[General recommendations#Graphical user interface|Graphical user interface]] ===
+=== [[TLP|Laptop power management]] ===
+
