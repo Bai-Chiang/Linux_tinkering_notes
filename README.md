@@ -1,4 +1,6 @@
-This is a collection of my Linux tinkering notes.
+ ## Moving to https://wiki.archlinux.org/title/User:Bai-Chiang
+ 
+ This is a collection of my Linux tinkering notes.
 
 - [Arch Linux installation](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/Arch_Linux_installation.md)
   - encrypted root partition
