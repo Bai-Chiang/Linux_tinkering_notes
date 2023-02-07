@@ -1,25 +1,15 @@
- ## Moving to https://wiki.archlinux.org/title/User:Bai-Chiang
- 
- This is a collection of my Linux tinkering notes.
+## Moving to https://wiki.archlinux.org/title/User:Bai-Chiang
+This is a collection of my Linux tinkering notes.
 
-- [Arch Linux installation](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/Arch_Linux_installation.md)
-  - encrypted root partition
-  - btrfs as root filesystem
-  - systemd-boot
-  - systemd-networkd
+- [Arch Linux installation](https://wiki.archlinux.org/title/User:Bai-Chiang/Installation_notes)
+  - Encrypted root and swap partition.
+  - Secure boot with your own keys.
+  - Unified kernel image boot directly from UEFI.
+  - Btrfs as root filesystem.
+  - Using snapper automatically create/cleanup snapshots based on timeline and pacman transactions.
+  - systemd-homed encrypts your home directory when system is suspended.
 
-- [Arch Linux post-installation configuration](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/Arch_Linux_post-installation_configuration.md)
-  - disable bell sound
-  - add admin user
-  - systemd-homed (todo)
-  - package manager `pacman` mirrorlist and parallel download, `paru`
-  - btrfs snapshots backup
-  - dofiles restore
-  - wifi
-  - GUI
-
-- [Fedora CoreOS as a disposable VM to run container applications.](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/Fedora_CoreOS.md)
 - [A python script to send email](https://github.com/Bai-Chiang/Linux_tinkering_notes/tree/main/python_send_email)
+- [Touhou](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/main/Touhou.md)
+  Run Touhou games purchased from Steam with [thcrap](https://www.thpatch.net/wiki/Touhou_Patch_Center:Main_page)
 - [Auto update setup for Arch Linux server (with email report)](https://github.com/Bai-Chiang/Linux_tinkering_notes/tree/main/Arch_Linux_auto_update_script)
-- [Auto start/stop virtual machines python script](https://github.com/Bai-Chiang/Linux_tinkering_notes/tree/main/libvirt_python_script)
-- [VFIO/PCI passthrough setup for headless server](https://github.com/Bai-Chiang/Linux_tinkering_notes/blob/f5c3fbdf7ea5d2ced48ce3c162f8369803b840ff/PCI_passthrough_headless_host.md)
